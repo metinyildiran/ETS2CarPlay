@@ -1,0 +1,1 @@
+{"name":"fh6-player","version":"0.4.2","private":true,"main":"main.cjs","scripts":{"start":"electron ."},"devDependencies":{"electron":"45.0.0"}}

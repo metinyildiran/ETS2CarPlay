@@ -1,0 +1,663 @@
+{
+  "archives": [
+    "def",
+    "base_vehicle",
+    "dlc_daf_2021",
+    "dlc_daf_xd",
+    "dlc_daf_xf_electric",
+    "dlc_iveco_sway",
+    "dlc_man_tgx_2020",
+    "dlc_renault_etech_t",
+    "dlc_scania_s_2024e",
+    "dlc_toys",
+    "dlc_volvo_fh_2021",
+    "dlc_volvo_fh_2024"
+  ],
+  "conflicts": [
+    {
+      "path": "/def/vehicle/truck/unlock_levels.sii",
+      "old": "def",
+      "new": "dlc_volvo_fh_2024"
+    }
+  ],
+  "trucks": [
+    {
+      "id": "daf.2021",
+      "interiors": 32,
+      "withGps": 32,
+      "withoutGps": [],
+      "screens": [
+        "/ui/dashboard/daf_2021_gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "daf.xd",
+      "interiors": 32,
+      "withGps": 32,
+      "withoutGps": [],
+      "screens": [
+        "/ui/dashboard/daf_xd_gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "daf.xf",
+      "interiors": 12,
+      "withGps": 12,
+      "withoutGps": [],
+      "screens": [
+        "/ui/gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "daf.xf_electric",
+      "interiors": 2,
+      "withGps": 2,
+      "withoutGps": [],
+      "screens": [
+        "/ui/dashboard/daf_xf_electric_gps.sii",
+        "/ui/dashboard/daf_xf_electric_uk_gps.sii"
+      ]
+    },
+    {
+      "id": "daf.xf_euro6",
+      "interiors": 16,
+      "withGps": 16,
+      "withoutGps": [],
+      "screens": [
+        "/ui/gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "iveco.hiway",
+      "interiors": 2,
+      "withGps": 2,
+      "withoutGps": [],
+      "screens": [
+        "/ui/gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "iveco.stralis",
+      "interiors": 8,
+      "withGps": 4,
+      "withoutGps": [
+        "/def/vehicle/truck/iveco.stralis/interior/standard.sii",
+        "/def/vehicle/truck/iveco.stralis/interior/standard_low.sii",
+        "/def/vehicle/truck/iveco.stralis/interior/standard_low_uk.sii",
+        "/def/vehicle/truck/iveco.stralis/interior/standard_uk.sii"
+      ],
+      "screens": [
+        "/ui/gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "iveco.sway",
+      "interiors": 6,
+      "withGps": 6,
+      "withoutGps": [],
+      "screens": [
+        "/ui/dashboard/iveco_sway_ic10_gps.sii",
+        "/ui/dashboard/iveco_sway_ic10_gps_mph.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "man.tgx",
+      "interiors": 12,
+      "withGps": 6,
+      "withoutGps": [
+        "/def/vehicle/truck/man.tgx/interior/standard.sii",
+        "/def/vehicle/truck/man.tgx/interior/standard_low.sii",
+        "/def/vehicle/truck/man.tgx/interior/standard_mid.sii",
+        "/def/vehicle/truck/man.tgx/interior/standard_uk.sii",
+        "/def/vehicle/truck/man.tgx/interior/standard_uk_low.sii",
+        "/def/vehicle/truck/man.tgx/interior/standard_uk_mid.sii"
+      ],
+      "screens": [
+        "/ui/gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "man.tgx_2020",
+      "interiors": 18,
+      "withGps": 18,
+      "withoutGps": [],
+      "screens": [
+        "/ui/dashboard/man_tgx_2020_gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "man.tgx_euro6",
+      "interiors": 24,
+      "withGps": 24,
+      "withoutGps": [],
+      "screens": [
+        "/ui/gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "mercedes.actros",
+      "interiors": 12,
+      "withGps": 0,
+      "withoutGps": [
+        "/def/vehicle/truck/mercedes.actros/interior/exclusive.sii",
+        "/def/vehicle/truck/mercedes.actros/interior/exclusive_uk.sii",
+        "/def/vehicle/truck/mercedes.actros/interior/highroof.sii",
+        "/def/vehicle/truck/mercedes.actros/interior/highroof_ex.sii",
+        "/def/vehicle/truck/mercedes.actros/interior/highroof_ex_uk.sii",
+        "/def/vehicle/truck/mercedes.actros/interior/highroof_uk.sii",
+        "/def/vehicle/truck/mercedes.actros/interior/lowroof.sii",
+        "/def/vehicle/truck/mercedes.actros/interior/lowroof_ex.sii",
+        "/def/vehicle/truck/mercedes.actros/interior/lowroof_ex_uk.sii",
+        "/def/vehicle/truck/mercedes.actros/interior/lowroof_uk.sii",
+        "/def/vehicle/truck/mercedes.actros/interior/standard.sii",
+        "/def/vehicle/truck/mercedes.actros/interior/standard_uk.sii"
+      ],
+      "screens": [],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "mercedes.actros2014",
+      "interiors": 12,
+      "withGps": 12,
+      "withoutGps": [],
+      "screens": [
+        "/ui/gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "renault.etech_t",
+      "interiors": 2,
+      "withGps": 2,
+      "withoutGps": [],
+      "screens": [
+        "/ui/dashboard/renault_etech_t_gps.sii"
+      ]
+    },
+    {
+      "id": "renault.magnum",
+      "interiors": 4,
+      "withGps": 0,
+      "withoutGps": [
+        "/def/vehicle/truck/renault.magnum/interior/route_66.sii",
+        "/def/vehicle/truck/renault.magnum/interior/route_66_uk.sii",
+        "/def/vehicle/truck/renault.magnum/interior/standard.sii",
+        "/def/vehicle/truck/renault.magnum/interior/standard_uk.sii"
+      ],
+      "screens": [],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "renault.premium",
+      "interiors": 8,
+      "withGps": 0,
+      "withoutGps": [
+        "/def/vehicle/truck/renault.premium/interior/expensive.sii",
+        "/def/vehicle/truck/renault.premium/interior/expensive_norm.sii",
+        "/def/vehicle/truck/renault.premium/interior/expensive_norm_uk.sii",
+        "/def/vehicle/truck/renault.premium/interior/expensive_uk.sii",
+        "/def/vehicle/truck/renault.premium/interior/standard.sii",
+        "/def/vehicle/truck/renault.premium/interior/standard_high.sii",
+        "/def/vehicle/truck/renault.premium/interior/standard_high_uk.sii",
+        "/def/vehicle/truck/renault.premium/interior/standard_uk.sii"
+      ],
+      "screens": [],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "renault.t",
+      "interiors": 40,
+      "withGps": 40,
+      "withoutGps": [],
+      "screens": [
+        "/ui/dashboard/renault_t_2024_gps.sii",
+        "/ui/gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii",
+        "/ui/dashboard/tablet_gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "scania.r",
+      "interiors": 12,
+      "withGps": 9,
+      "withoutGps": [
+        "/def/vehicle/truck/scania.r/interior/highline.sii",
+        "/def/vehicle/truck/scania.r/interior/normal.sii",
+        "/def/vehicle/truck/scania.r/interior/standard.sii"
+      ],
+      "screens": [
+        "/ui/gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "scania.r_2016",
+      "interiors": 48,
+      "withGps": 40,
+      "withoutGps": [
+        "/def/vehicle/truck/scania.r_2016/interior/cab_r_high_black_dark.sii",
+        "/def/vehicle/truck/scania.r_2016/interior/cab_r_high_black_light.sii",
+        "/def/vehicle/truck/scania.r_2016/interior/cab_r_norm_black_dark.sii",
+        "/def/vehicle/truck/scania.r_2016/interior/cab_r_norm_black_light.sii",
+        "/def/vehicle/truck/scania.r_2016/interior/uk_cab_r_high_black_dark.sii",
+        "/def/vehicle/truck/scania.r_2016/interior/uk_cab_r_high_black_light.sii",
+        "/def/vehicle/truck/scania.r_2016/interior/uk_cab_r_norm_black_dark.sii",
+        "/def/vehicle/truck/scania.r_2016/interior/uk_cab_r_norm_black_light.sii"
+      ],
+      "screens": [
+        "/ui/gps.sii",
+        "/ui/dashboard/scania_2025_gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "scania.s_2016",
+      "interiors": 48,
+      "withGps": 40,
+      "withoutGps": [
+        "/def/vehicle/truck/scania.s_2016/interior/cab_s_high_black_dark.sii",
+        "/def/vehicle/truck/scania.s_2016/interior/cab_s_high_black_light.sii",
+        "/def/vehicle/truck/scania.s_2016/interior/cab_s_norm_black_dark.sii",
+        "/def/vehicle/truck/scania.s_2016/interior/cab_s_norm_black_light.sii",
+        "/def/vehicle/truck/scania.s_2016/interior/uk_cab_s_high_black_dark.sii",
+        "/def/vehicle/truck/scania.s_2016/interior/uk_cab_s_high_black_light.sii",
+        "/def/vehicle/truck/scania.s_2016/interior/uk_cab_s_norm_black_dark.sii",
+        "/def/vehicle/truck/scania.s_2016/interior/uk_cab_s_norm_black_light.sii"
+      ],
+      "screens": [
+        "/ui/gps.sii",
+        "/ui/dashboard/scania_2025_gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "scania.s_2024e",
+      "interiors": 2,
+      "withGps": 2,
+      "withoutGps": [],
+      "screens": [
+        "/ui/gps.sii"
+      ]
+    },
+    {
+      "id": "scania.streamline",
+      "interiors": 16,
+      "withGps": 12,
+      "withoutGps": [
+        "/def/vehicle/truck/scania.streamline/interior/highline.sii",
+        "/def/vehicle/truck/scania.streamline/interior/normal.sii",
+        "/def/vehicle/truck/scania.streamline/interior/topline.sii",
+        "/def/vehicle/truck/scania.streamline/interior/topline_uk.sii"
+      ],
+      "screens": [
+        "/ui/gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "volvo.fh_2021",
+      "interiors": 18,
+      "withGps": 18,
+      "withoutGps": [],
+      "screens": [
+        "/ui/dashboard/volvo_fh_2021_gps.sii",
+        "/ui/dashboard/volvo_fh_2021_mph_gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "volvo.fh_2024",
+      "interiors": 34,
+      "withGps": 34,
+      "withoutGps": [],
+      "screens": [
+        "/ui/dashboard/volvo_fh_2024_gps.sii",
+        "/ui/dashboard/volvo_fh_2024_mph_gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "volvo.fh16",
+      "interiors": 8,
+      "withGps": 4,
+      "withoutGps": [
+        "/def/vehicle/truck/volvo.fh16/interior/standard.sii",
+        "/def/vehicle/truck/volvo.fh16/interior/standard_low.sii",
+        "/def/vehicle/truck/volvo.fh16/interior/standard_low_uk.sii",
+        "/def/vehicle/truck/volvo.fh16/interior/standard_uk.sii"
+      ],
+      "screens": [
+        "/ui/gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    },
+    {
+      "id": "volvo.fh16_2012",
+      "interiors": 12,
+      "withGps": 12,
+      "withoutGps": [],
+      "screens": [
+        "/ui/gps.sii"
+      ],
+      "accessoryScreens": [
+        "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+        "/ui/dashboard/gps.dlc_toys.sii"
+      ]
+    }
+  ],
+  "screens": [
+    {
+      "path": "/ui/dashboard/cellphone_gps.dlc_toys.sii",
+      "source": "research/fleet/dlc_toys/ui/dashboard/cellphone_gps.dlc_toys.sii",
+      "trucks": [
+        "daf.2021",
+        "daf.xd",
+        "daf.xf",
+        "daf.xf_euro6",
+        "iveco.hiway",
+        "iveco.stralis",
+        "iveco.sway",
+        "man.tgx",
+        "man.tgx_2020",
+        "man.tgx_euro6",
+        "mercedes.actros",
+        "mercedes.actros2014",
+        "renault.magnum",
+        "renault.premium",
+        "renault.t",
+        "scania.r",
+        "scania.r_2016",
+        "scania.streamline",
+        "scania.s_2016",
+        "volvo.fh16",
+        "volvo.fh16_2012",
+        "volvo.fh_2021",
+        "volvo.fh_2024"
+      ],
+      "sizes": [],
+      "accessory": true
+    },
+    {
+      "path": "/ui/dashboard/daf_2021_gps.sii",
+      "source": "research/fleet/dlc_daf_2021/ui/dashboard/daf_2021_gps.sii",
+      "trucks": [
+        "daf.2021"
+      ],
+      "sizes": [
+        "1024,512"
+      ]
+    },
+    {
+      "path": "/ui/dashboard/daf_xd_gps.sii",
+      "source": "research/fleet/dlc_daf_xd/ui/dashboard/daf_xd_gps.sii",
+      "trucks": [
+        "daf.xd"
+      ],
+      "sizes": [
+        "1024,512"
+      ]
+    },
+    {
+      "path": "/ui/dashboard/daf_xf_electric_gps.sii",
+      "source": "research/fleet/dlc_daf_xf_electric/ui/dashboard/daf_xf_electric_gps.sii",
+      "trucks": [
+        "daf.xf_electric"
+      ],
+      "sizes": [
+        "1024,512"
+      ]
+    },
+    {
+      "path": "/ui/dashboard/daf_xf_electric_uk_gps.sii",
+      "source": "research/fleet/dlc_daf_xf_electric/ui/dashboard/daf_xf_electric_uk_gps.sii",
+      "trucks": [
+        "daf.xf_electric"
+      ],
+      "sizes": [
+        "1024,512"
+      ]
+    },
+    {
+      "path": "/ui/dashboard/gps.dlc_toys.sii",
+      "source": "research/fleet/dlc_toys/ui/dashboard/gps.dlc_toys.sii",
+      "trucks": [
+        "daf.2021",
+        "daf.xd",
+        "daf.xf",
+        "daf.xf_euro6",
+        "iveco.hiway",
+        "iveco.stralis",
+        "iveco.sway",
+        "man.tgx",
+        "man.tgx_2020",
+        "man.tgx_euro6",
+        "mercedes.actros",
+        "mercedes.actros2014",
+        "renault.magnum",
+        "renault.premium",
+        "renault.t",
+        "scania.r",
+        "scania.r_2016",
+        "scania.streamline",
+        "scania.s_2016",
+        "volvo.fh16",
+        "volvo.fh16_2012",
+        "volvo.fh_2021",
+        "volvo.fh_2024"
+      ],
+      "sizes": [],
+      "accessory": true
+    },
+    {
+      "path": "/ui/dashboard/iveco_sway_ic10_gps_mph.sii",
+      "source": "research/fleet/dlc_iveco_sway/ui/dashboard/iveco_sway_ic10_gps_mph.sii",
+      "trucks": [
+        "iveco.sway"
+      ],
+      "sizes": [
+        "1024,512"
+      ]
+    },
+    {
+      "path": "/ui/dashboard/iveco_sway_ic10_gps.sii",
+      "source": "research/fleet/dlc_iveco_sway/ui/dashboard/iveco_sway_ic10_gps.sii",
+      "trucks": [
+        "iveco.sway"
+      ],
+      "sizes": [
+        "1024,512"
+      ]
+    },
+    {
+      "path": "/ui/dashboard/man_tgx_2020_gps.sii",
+      "source": "research/fleet/dlc_man_tgx_2020/ui/dashboard/man_tgx_2020_gps.sii",
+      "trucks": [
+        "man.tgx_2020"
+      ],
+      "sizes": [
+        "1024,512"
+      ]
+    },
+    {
+      "path": "/ui/dashboard/renault_etech_t_gps.sii",
+      "source": "research/fleet/dlc_renault_etech_t/ui/dashboard/renault_etech_t_gps.sii",
+      "trucks": [
+        "renault.etech_t"
+      ],
+      "sizes": [
+        "1024,512"
+      ]
+    },
+    {
+      "path": "/ui/dashboard/renault_t_2024_gps.sii",
+      "source": "research/fleet/base_vehicle/ui/dashboard/renault_t_2024_gps.sii",
+      "trucks": [
+        "renault.t"
+      ],
+      "sizes": [
+        "1024,512"
+      ]
+    },
+    {
+      "path": "/ui/dashboard/scania_2025_gps.sii",
+      "source": "research/fleet/base_vehicle/ui/dashboard/scania_2025_gps.sii",
+      "trucks": [
+        "scania.r_2016",
+        "scania.s_2016"
+      ],
+      "sizes": [
+        "1024,512"
+      ]
+    },
+    {
+      "path": "/ui/dashboard/tablet_gps.dlc_toys.sii",
+      "source": "research/fleet/dlc_toys/ui/dashboard/tablet_gps.dlc_toys.sii",
+      "trucks": [
+        "renault.t"
+      ],
+      "sizes": [],
+      "accessory": true
+    },
+    {
+      "path": "/ui/dashboard/volvo_fh_2021_gps.sii",
+      "source": "research/fleet/dlc_volvo_fh_2021/ui/dashboard/volvo_fh_2021_gps.sii",
+      "trucks": [
+        "volvo.fh_2021"
+      ],
+      "sizes": [
+        "1024,512"
+      ]
+    },
+    {
+      "path": "/ui/dashboard/volvo_fh_2021_mph_gps.sii",
+      "source": "research/fleet/dlc_volvo_fh_2021/ui/dashboard/volvo_fh_2021_mph_gps.sii",
+      "trucks": [
+        "volvo.fh_2021"
+      ],
+      "sizes": [
+        "1024,512"
+      ]
+    },
+    {
+      "path": "/ui/dashboard/volvo_fh_2024_gps.sii",
+      "source": "research/fleet/dlc_volvo_fh_2024/ui/dashboard/volvo_fh_2024_gps.sii",
+      "trucks": [
+        "volvo.fh_2024"
+      ],
+      "sizes": [
+        "1024,512"
+      ]
+    },
+    {
+      "path": "/ui/dashboard/volvo_fh_2024_mph_gps.sii",
+      "source": "research/fleet/dlc_volvo_fh_2024/ui/dashboard/volvo_fh_2024_mph_gps.sii",
+      "trucks": [
+        "volvo.fh_2024"
+      ],
+      "sizes": [
+        "1024,512"
+      ]
+    },
+    {
+      "path": "/ui/gps.sii",
+      "source": "research/fleet/base_vehicle/ui/gps.sii",
+      "trucks": [
+        "daf.xf",
+        "daf.xf_euro6",
+        "iveco.hiway",
+        "iveco.stralis",
+        "man.tgx",
+        "man.tgx_euro6",
+        "mercedes.actros2014",
+        "renault.t",
+        "scania.r",
+        "scania.r_2016",
+        "scania.streamline",
+        "scania.s_2016",
+        "volvo.fh16",
+        "volvo.fh16_2012",
+        "scania.s_2024e"
+      ],
+      "sizes": [
+        "default",
+        "256,256"
+      ]
+    }
+  ]
+}

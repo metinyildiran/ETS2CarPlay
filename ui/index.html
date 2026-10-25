@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FH6 • YouTube</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/player.js"></script>
+  <script type="module" src="/capture.js"></script>
+</head>
+<body>
+  <main>
+    <header><span class="brand">FH6 <span class="muted">/</span> YouTube</span><span class="badge">OYNATICI ÖNİZLEME</span></header>
+    <form id="load-form">
+      <label class="sr-only" for="url">YouTube video bağlantısı</label>
+      <input id="url" type="text" placeholder="YouTube bağlantısı yapıştır" autocomplete="off" spellcheck="false" required>
+      <button id="load" type="submit" disabled>Aç</button>
+    </form>
+    <section class="video" aria-label="YouTube oynatıcı"><div id="player"></div></section>
+    <footer>
+      <button id="toggle" type="button" disabled>Oynat</button>
+      <label for="volume">Ses</label><input id="volume" type="range" min="0" max="100" value="50" disabled>
+      <output id="volume-value" for="volume">50%</output>
+    </footer>
+    <p id="status" role="status" aria-live="polite">YouTube yükleniyor…</p>
+    <div class="bridge"><button id="capture" type="button">Kabine aktar</button><button id="stop-capture" type="button" disabled>Durdur</button></div>
+    <p id="bridge-status" role="status">Aktarırken paylaşım penceresinde bu sekmeyi seç. Ses tarayıcıdan çalar.</p>
+    <p class="note">Deneysel FH6 bağlantısı · Oyun içi doğrulama bekleniyor.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,42 @@
+const {app,BrowserWindow}=require('electron');
+const fs=require('node:fs'),path=require('node:path');
+const {randomBytes}=require('node:crypto');
+const {createBrowserBridge}=require('../desktop/browser-bridge.cjs');
+const {FrameSender}=require('../desktop/transport.cjs');
+const root=path.resolve(__dirname,'..'),folder=path.join(root,'build/browser-frame-probe');
+app.setPath('userData',path.join(root,'build/browser-frame-probe-profile'));
+let bridge,sender,win,red=0,blue=0,caption=0,clear=0,started=false;
+app.whenReady().then(async()=>{
+ const token=randomBytes(32).toString('hex');
+ sender=new FrameSender(()=>{},'FH6CarPlay-test');
+ bridge=createBrowserBridge({token,port:0,onFrame:frame=>{
+   sender.push(frame);const offset=(256*1024+512)*4;
+   if(frame[offset+2]>240&&frame[offset]<10)red++;
+   if(frame[offset]>240&&frame[offset+2]<10)blue++;
+   if(frame[(450*1024+512)*4]>240&&frame[(450*1024+512)*4+2]>240)caption++;
+   if(frame[3]===0){if(started)clear++;}else started=true;
+ }});await bridge.listen();
+ fs.mkdirSync(folder,{recursive:true});
+ fs.writeFileSync(path.join(folder,'manifest.json'),JSON.stringify({manifest_version:3,name:'FH6 synthetic frame test',version:'1.0',host_permissions:['http://127.0.0.1/*'],content_security_policy:{extension_pages:"script-src 'self'; object-src 'none'; connect-src http://127.0.0.1:*"}}));
+ fs.copyFileSync(path.join(root,'browser-extension/frames.js'),path.join(folder,'frames.js'));
+ fs.writeFileSync(path.join(folder,'test.html'),'<html><canvas width="1280" height="720"></canvas><script src="test.js"></script></html>');
+ fs.writeFileSync(path.join(folder,'test.js'),`(async()=>{
+ const base='http://127.0.0.1:${bridge.server.address().port}',token='${token}';let session='';
+ const call=async(route,method='GET',body)=>{const r=await fetch(base+route,{method,headers:{'X-FH6-Token':token,'X-FH6-Session':session,'Content-Type':'application/json'},body:body&&JSON.stringify(body)});if(!r.ok)throw new Error('HTTP '+r.status);return r.status===204?null:r.json();};
+ session=(await call('/connect','POST',{})).session;const [{serial}]=await call('/commands');
+ const canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d');let blue=false;
+ const draw=()=>{ctx.fillStyle='#00ff00';ctx.fillRect(0,0,1280,720);ctx.fillStyle=blue?'#0000ff':'#ff0000';ctx.fillRect(128,72,1024,512);if(blue){ctx.fillStyle='#fff';ctx.fillRect(450,510,380,28);}};
+ draw();const stream=canvas.captureStream(60),readable=new MediaStreamTrackProcessor({track:stream.getVideoTracks()[0]}).readable;
+ const worker=new Worker('frames.js');worker.onmessage=e=>console.log(JSON.stringify(e.data));worker.postMessage({type:'start',readable,base,token,session},[readable]);
+ worker.postMessage({type:'state',playing:true,applied:serial,crop:{x:.1,y:.1,w:.8,h:512/720}});
+ const paint=setInterval(draw,1000/60);const report=()=>call('/state','POST',{videoId:'M7lc1UVf-VE',playing:true,applied:serial});await report();const heartbeat=setInterval(report,300);
+ setTimeout(()=>{blue=true;},1500);
+ setTimeout(async()=>{clearInterval(paint);clearInterval(heartbeat);worker.terminate();stream.getTracks().forEach(t=>t.stop());await call('/state','POST',{videoId:'M7lc1UVf-VE',playing:false,applied:serial});console.log('frame-test-complete');},3500);
+})().catch(e=>console.error(e.stack));`);
+ const extension=await require('electron').session.defaultSession.extensions.loadExtension(folder);
+ win=new BrowserWindow({show:false,width:1280,height:720,webPreferences:{offscreen:true,backgroundThrottling:false}});
+ win.webContents.on('console-message',(_e,details)=>console.log(details.message));
+ await win.loadURL(`chrome-extension://${extension.id}/test.html`);
+ setTimeout(()=>{const result={redFrames:red,blueFrames:blue,captionFrames:caption,transparentAfterPlayback:clear,passed:red>10&&blue>10&&caption>10&&clear>0};console.log(JSON.stringify(result));bridge.close();sender.close();app.exit(result.passed?0:1);},5500);
+}).catch(error=>{console.error(error.stack);app.exit(1);});
+setTimeout(()=>app.exit(1),15000).unref();

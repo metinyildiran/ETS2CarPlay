@@ -1,0 +1,9 @@
+{
+  "name": "ets2-fh6-youtube",
+  "version": "0.2.1",
+  "private": true,
+  "type": "module",
+  "description": "Experimental Volvo FH6 YouTube screen and local DX11 video bridge",
+  "scripts": { "start": "node src/server.js", "test": "node --test" },
+  "engines": { "node": ">=22" }
+}

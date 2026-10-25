@@ -1,0 +1,4 @@
+let player;
+window.onYouTubeIframeAPIReady=()=>{player=new YT.Player('player',{width:'100%',height:'100%',playerVars:{playsinline:1,origin:location.origin,controls:1},events:{onReady:()=>window.fh6.state('ready'),onStateChange:e=>window.fh6.state(e.data),onError:e=>window.fh6.state('YouTube hatası: '+e.data),onAutoplayBlocked:()=>window.fh6.state('Otomatik oynatma engellendi. Oynat düğmesine bas.')}});};
+window.fh6.onCommand(c=>{if(!player)return;switch(c.type){case'load':player.loadVideoById({videoId:c.id,startSeconds:c.startSeconds||0});break;case'play':player.playVideo();break;case'pause':player.pauseVideo();break;case'stop':player.stopVideo();break;case'volume':player.setVolume(c.value);break;}});
+const tag=document.createElement('script');tag.src='https://www.youtube.com/iframe_api';tag.onerror=()=>window.fh6.state('YouTube yüklenemedi.');document.head.append(tag);
