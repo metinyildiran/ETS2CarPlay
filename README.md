@@ -2,7 +2,9 @@
 
 Euro Truck Simulator 2 kabinindeki GPS ekranına YouTube videosu aktaran deneysel Windows projesi. Normal Chrome/Edge sekmesindeki video kullanılır; kalite, altyazı, ses dili ve oynatma konumu değişiklikleri oyuna yansır. Video duraklatıldığında veya aktarım durduğunda navigasyon geri görünür.
 
-**Durum:** Kaynak kodu paylaşımıdır; hazır kurulum paketi içermez. Son gösterge düzeltmesi **0.6.3**, yerel DirectX eklentisi **0.6.0**, tarayıcı uzantısı **0.6.1**. Son yükleme çökmesi için çocuk öğelerin sırası ve SCS öğe adlarının uzunluğu düzeltildi. Otomatik kontroller geçti; **0.6.3 ile gerçek oyun yüklemesinin yeniden doğrulanması bekleniyor**.
+**Steam Atölye:** [ETS2CarPlay - YouTube GPS Screens](https://steamcommunity.com/sharedfiles/filedetails/?id=3827251497). Atölye yalnızca gösterge bileşenini kurar; harici DLL, yardımcı ve tarayıcı uzantısı ayrıca gerekir. Atölye kopyasını etkinleştirirken yerel `FH6YouTube.scs` kopyasını devre dışı bırakın. [Yayın ve paketleme notları](WORKSHOP.md).
+
+**Durum:** Kaynak kodu paylaşımıdır; hazır kurulum paketi içermez. Son gösterge düzeltmesi **0.6.3**, yerel DirectX eklentisi **0.6.0**, tarayıcı uzantısı **0.6.1**. Son yükleme çökmesi için çocuk öğelerin sırası ve SCS öğe adlarının uzunluğu düzeltildi. Otomatik kontroller geçti; **Kullanıcı 25 Ekim 2026 tarihinde son yükleme çökmesinin düzeldiğini doğruladı**.
 
 ## Özellikler
 
