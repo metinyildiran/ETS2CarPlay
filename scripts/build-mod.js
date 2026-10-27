@@ -95,5 +95,5 @@ mod_package : .package {
 }
 }
 `);
-await write('description.txt', 'Experimental Volvo FH6 YouTube screen. Requires FH6CarPlay.addon64, ReShade with full add-on support and the local video bridge. Replaces the FH6 GPS display. Disable this mod to restore navigation. In-game verification pending.');
+await write('description.txt', 'Legacy test screen. The current package uses only its marker materials; install the navigation-preserving package described in README.md.');
 console.log(fileURLToPath(root));

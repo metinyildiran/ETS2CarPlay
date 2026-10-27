@@ -8,7 +8,7 @@ Oyunu aç. **Ctrl+Alt+Y** ile YouTube panelini açıp kapat. Bağlantıyı yapı
 
 **Hesap ve reklam:** Bu uygulama Chrome/Edge hesabını veya çerezlerini aktarmıyor; hesap giriş arayüzü yok. Oynatıcı kendi ayrı profilini kullanır. YouTube'un gömülü video reklamları çıkabilir; uygulama reklam engellemez. [YouTube reklam açıklaması](https://support.google.com/youtube/answer/132596?hl=tr).
 
-YouTube motoru oyunla birlikte görünmeden başlar ve oyun kapandığında kapanır. Bu bir web motoru içerir ve arka planda yardımcı süreçleri vardır; tamamen `.scs` dosyasından oluşan bir mod değildir. ReShade kullanılmaz. Video durunca veya oynatıcı bağlantısı kesilince görüntü katmanı şeffaflaşır; orijinal FH6 navigasyonu altta korunur.
+YouTube motoru oyunla birlikte görünmeden başlar ve oyun kapandığında kapanır. Bu bir web motoru içerir ve arka planda yardımcı süreçleri vardır; tamamen `.scs` dosyasından oluşan bir mod değildir. Video durunca veya oynatıcı bağlantısı kesilince görüntü katmanı şeffaflaşır; orijinal FH6 navigasyonu altta korunur.
 
 Bağlantıdaki başlangıç süreleri korunur: `?t=90`, `?t=1m30s`, `?start=90`, `#t=1m30s`. Süre YouTube'un resmi `loadVideoById({videoId,startSeconds})` çağrısına gönderilir. YouTube videoyu en yakın anahtar kareden başlatabilir. Canlı yayınlarda zaman davranışı YouTube'a bağlıdır.
 
@@ -16,7 +16,7 @@ FPS, video zamanlamasına göre ölçülüp ayarlanır; sabit 10 FPS sınırı y
 
 ## 0.3'ten güncelleme
 
-ETS2'yi ve eski FH6 oynatıcı penceresini kapat, proje kökündeki `Update-InGame.cmd` dosyasını çalıştır. Sonra yalnızca oyunu aç. `FH6Player.ini`, arka plan oynatıcısının proje içindeki konumunu saklar; `dist/ingame-0.4.2/Player` klasörünü taşırsan bu yol da güncellenmelidir. Önceki sürüme dönüş için proje kökündeki `Restore-Previous.cmd` kullanılabilir; bu işlem eski ReShade tabanlı 0.2.1 kurulumunu geri yükler.
+Ana klasördeki `Install.cmd` tarayıcı aktarımını kurar. Dahili oynatıcıya teknik olarak geçmek için oyun kapalıyken `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/update-ingame.ps1` çalıştırılır. Bu işlem hazırlanmış `dist/ingame-0.4.2` paketini gerektirir. Tarayıcıya dönmek için `Install.cmd` yeniden çalıştırılır. `FH6Player.ini` oynatıcı konumunu saklar.
 
 ## Görüntü düzeltmesi ve doğrulama
 

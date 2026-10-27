@@ -1,10 +1,13 @@
 param(
   [string]$GamePath = 'D:\SteamLibrary\steamapps\common\Euro Truck Simulator 2',
   [string]$DocumentsPath = (Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'Euro Truck Simulator 2'),
-  [string]$PackagePath = (Join-Path (Split-Path $PSScriptRoot -Parent) 'dist\standalone'),
+  [string]$PackagePath,
+  [string]$ManifestPath,
   [switch]$CheckOnly
 )
 $ErrorActionPreference = 'Stop'
+if([string]::IsNullOrWhiteSpace($PackagePath)){$PackagePath=Join-Path (Split-Path $PSScriptRoot -Parent) 'dist\standalone'}
+if([string]::IsNullOrWhiteSpace($ManifestPath)){$ManifestPath=Join-Path $PackagePath 'Installation.json'}
 if (Get-Process -Name eurotrucks2 -ErrorAction SilentlyContinue) { throw 'ETS2 acik. Once oyunu kapat; hicbir dosya degistirilmedi.' }
 $PackagePath = [IO.Path]::GetFullPath($PackagePath)
 $bin = Join-Path $GamePath 'bin\win_x64'
@@ -14,8 +17,7 @@ if (!(Test-Path -LiteralPath $DocumentsPath)) { throw 'ETS2 belgeler klasoru bul
 foreach ($file in @('FH6Standalone.dll','FH6YouTubeNavigation.scs','Player\electron.exe','Player\resources\app\main.cjs')) {
   if (!(Test-Path -LiteralPath (Join-Path $PackagePath $file))) { throw "Paket eksik: $file" }
 }
-$manifestPath = Join-Path $PackagePath 'Installation.json'
-if (Test-Path -LiteralPath $manifestPath) { throw 'Bu paket zaten kuruldu. Yeniden kurmadan once Restore-Previous.cmd kullan.' }
+if (Test-Path -LiteralPath $manifestPath) { throw 'Bu paket zaten kuruldu. Yeniden kurmak icin Install.cmd dosyasini calistir.' }
 $actions = @()
 foreach ($file in @('dxgi.dll','d3d11.dll')) {
   $path = Join-Path $bin $file
@@ -60,6 +62,7 @@ try {
       if ((Get-FileHash -LiteralPath $action.Target).Hash -ne $action.After) { throw 'Kurulum dogrulamasi basarisiz.' }
     } else { Remove-Item -LiteralPath $action.Target }
   }
+  New-Item -ItemType Directory -Path (Split-Path ([IO.Path]::GetFullPath($manifestPath)) -Parent) -Force | Out-Null
   $manifest | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $manifestPath -Encoding UTF8
 } catch {
   [array]::Reverse($completed)
@@ -69,4 +72,4 @@ try {
   }
   throw
 }
-Write-Output '0.3 kuruldu. ReShade ve eski eklenti yedeklendi. Start-Standalone.cmd ile oynaticiyi ac.'
+Write-Output 'Temel kurulum tamamlandi.'

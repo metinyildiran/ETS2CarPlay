@@ -1,13 +1,15 @@
 # Konvoy için CarPlay'i kapatma
 
-Mod yöneticisindeki ekran modunu kapatmak, `FH6Standalone.dll` SDK eklentisini kapatmaz. DLL, oyun açılırken ayrıca yüklenir.
+Mod Yöneticisindeki ekran modunu kapatmak, oyun başlarken yüklenen yerel eklentiyi kapatmaz. Ana klasördeki `Install.cmd` yalnızca kurulum yapar.
 
-1. ETS2'yi tamamen kapat.
-2. `Convoy-Mode.cmd` çalıştır. CarPlay DLL'si doğrulanmış bir yedeğe alınır ve oyunun `plugins` klasöründen kaldırılır.
-3. Oyunu aç; mod yöneticisinde CarPlay ekran modu kapalı olsun. Konvoy oturumunu yeniden oluştur.
+Gerekirse oyun kapalıyken proje klasöründe şu bakım komutunu çalıştırın:
 
-Bu durumda video aktarımı ve oyun içi CarPlay kontrolleri çalışmaz. Geri açmak için oyun kapalıyken `Enable-CarPlay.cmd` çalıştır, ardından ekran modunu etkinleştir. Tarayıcı eşleştirmesi korunur. CarPlay kurulum/güncelleme betikleri DLL'yi yeniden yükler.
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/set-carplay-enabled.ps1 -Mode Off
+```
 
-SDK uyarısı eklenti yüklendiğini belirtir; tek başına konvoya katılma hatasının nedeni olduğunu kanıtlamaz. SDK kapalıyken katılma sorunu sürerse arkadaşın katılma ekranındaki tam hata metni gerekir. Trafik modu veya konvoy ayarları bu işlemde değiştirilmez.
+Eklenti doğrulanmış bir yedeğe alınır ve oyunun `plugins` klasöründen kaldırılır. Oyunu açıp ekran modunu da kapatın; konvoy oturumunu yeniden oluşturun. Bu durumda video aktarımı ve CarPlay kontrolleri çalışmaz.
 
-Yedekler `dist/standalone/ConvoyBackups` içindedir. Kurulum kaydı hangi yedeğin etkinleştirileceğini tutar.
+Tekrar etkinleştirmek için oyun kapalıyken aynı komutta `-Mode On` kullanın. `Install.cmd` ile tekrar kurulum da eklentiyi etkinleştirir. Tarayıcı eşleştirmesi korunur.
+
+SDK uyarısı tek başına konvoya katılma sorununun nedenini kanıtlamaz. Trafik modu ve konvoy ayarları bu işlemde değiştirilmez. Yedekler `dist/standalone/ConvoyBackups` altında saklanır.

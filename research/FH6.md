@@ -12,8 +12,4 @@ Doğrulanan yollar:
 
 GPS arayüzü `ui::window`, `ui::group`, `ui::text` öğeleri kullanıyor. Paylaşılan grup 950, ilk sayfa grubu 100. Saat 1050. Bunlar web tarayıcısı kontrolü değil.
 
-0.2.0 yaklaşımı: GPS render hedefini tahmin etmek yerine kendimize ait imzalı bir UI dokusu oluşturuluyor. Grup 950 içindeki resim iki FH6 GPS dosyasına uygulanıyor. ReShade eklentisi bu dokuyu imzasıyla tanıyıp dinamik güncelliyor. Aktif kabin varyantında doku yükleme/güncelleme yolu henüz doğrulanmadı. Çalışan oyuna debugger, hook veya eklenti bağlanmadı.
-
-## Doğrulama
-
-0.2.0: Kullanıcı video oynatımını doğruladı. 8 otomatik test ve C++ protokol testi geçti; derlenmiş C++ alıcısına localhost üzerinden gerçek kare aktarımı test edildi. ETS2/ReShade yolu henüz canlı oyunda denenmedi.
+Guncel uygulama ve dogrulama bilgileri FLEET.md ve README.md dosyalarindadir.

@@ -89,6 +89,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   });
   server.listen(32126, '127.0.0.1', () => {
     console.log('YouTube önizleme: http://127.0.0.1:32126');
-    console.log('Kabin aktarımı için FH6 mod paketi ve ReShade eklentisi gerekir. Kapatmak için Ctrl+C.');
+    console.log('Eski HTTP test oynatıcısı. Güncel kurulum ve kullanım için README.md dosyasına bakın. Kapatmak için Ctrl+C.');
   });
 }

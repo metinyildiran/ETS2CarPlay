@@ -1,17 +1,26 @@
 param(
- [string]$PackagePath=(Join-Path (Split-Path $PSScriptRoot -Parent) 'dist\ingame-0.4.2'),
- [string]$ManifestPath=(Join-Path (Split-Path $PSScriptRoot -Parent) 'dist\standalone\Installation.json')
+ [string]$PackagePath,
+ [string]$ManifestPath,
+ [switch]$RepairMissing
 )
 $ErrorActionPreference='Stop'
+$root=Split-Path $PSScriptRoot -Parent
+if([string]::IsNullOrWhiteSpace($PackagePath)){$PackagePath=Join-Path $root 'dist\ingame-0.4.2'}
+if([string]::IsNullOrWhiteSpace($ManifestPath)){$ManifestPath=Join-Path $root 'dist\standalone\Installation.json'}
 if(Get-Process -Name eurotrucks2 -ErrorAction SilentlyContinue){throw 'Once ETS2 oyununu kapat. Acik oyuna guncelleme yapilmadi.'}
 $oldPlayer=Join-Path (Split-Path $ManifestPath -Parent) 'Player\electron.exe'
 if(Get-Process -Name electron -ErrorAction SilentlyContinue | Where-Object {$_.Path -eq $oldPlayer}){throw 'Eski FH6 oynaticisini da kapat.'}
 $manifest=Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json
+$bin=Join-Path $manifest.GamePath 'bin\win_x64'
+$repairTargets=@((Join-Path $bin 'plugins\FH6Standalone.dll'),(Join-Path $bin 'plugins\FH6Player.ini'))
+$repairTargets+=@($manifest.Actions | Where-Object {$_.Target -like '*\mod\FH6YouTube.scs'} | ForEach-Object {$_.Target})
+$observed=@{}
 foreach($action in $manifest.Actions){
  $current=if(Test-Path -LiteralPath $action.Target){(Get-FileHash -LiteralPath $action.Target).Hash}else{$null}
- if($current -ne $action.After){throw "Kurulumdan sonra degisen dosyaya dokunulmadi: $($action.Target)"}
+ $observed[$action.Target]=$current
+ $missingRepair=$RepairMissing -and !$current -and $action.After -and $action.Target -in $repairTargets
+ if($current -ne $action.After -and !$missingRepair){throw "Kurulumdan sonra degisen dosyaya dokunulmadi: $($action.Target)"}
 }
-$bin=Join-Path $manifest.GamePath 'bin\win_x64'
 $installedConfig=Join-Path $bin 'plugins\FH6Player.ini'
 if(Test-Path -LiteralPath $installedConfig){
  $installedPlayer=(Get-Content -LiteralPath $installedConfig | Where-Object {$_ -like 'Executable=*'}).Substring(11)
@@ -38,17 +47,26 @@ if(!$configAction){
  $manifest.Actions=@($manifest.Actions)+@($configAction)
 }
 $changes=@(
- [pscustomobject]@{Action=$dllAction;Source="$PackagePath\FH6Standalone.dll";Backup="$backup\FH6Standalone.dll"},
- [pscustomobject]@{Action=$modAction;Source="$PackagePath\FH6YouTubeNavigation.scs";Backup="$backup\FH6YouTube.scs"},
+ [pscustomobject]@{Action=$dllAction;Source="$PackagePath\FH6Standalone.dll";Backup=$null},
+ [pscustomobject]@{Action=$modAction;Source="$PackagePath\FH6YouTubeNavigation.scs";Backup=$null},
  [pscustomobject]@{Action=$configAction;Source=$configSource;Backup=$null}
 )
-foreach($change in $changes){if(Test-Path -LiteralPath $change.Action.Target){if(!$change.Backup){$change.Backup="$backup\FH6Player.ini"};Copy-Item -LiteralPath $change.Action.Target -Destination $change.Backup}}
+foreach($change in $changes){
+ $current=if(Test-Path -LiteralPath $change.Action.Target){(Get-FileHash -LiteralPath $change.Action.Target).Hash}else{$null}
+ if($current -ne $observed[$change.Action.Target]){throw 'Hedef dosya yedekleme oncesinde degisti.'}
+ if($current){
+  $change.Backup=Join-Path $backup ([IO.Path]::GetFileName($change.Action.Target))
+  Copy-Item -LiteralPath $change.Action.Target -Destination $change.Backup
+  if((Get-FileHash -LiteralPath $change.Backup).Hash -ne $current){throw 'Yedek dogrulanamadi.'}
+ }
+}
 $completed=@()
 try{
  foreach($change in $changes){
   if(Get-Process -Name eurotrucks2 -ErrorAction SilentlyContinue){throw 'Guncelleme sirasinda oyun acildi.'}
   $current=if(Test-Path -LiteralPath $change.Action.Target){(Get-FileHash -LiteralPath $change.Action.Target).Hash}else{$null}
-  if($current -ne $change.Action.After){throw 'Hedef dosya guncelleme sirasinda degisti.'}
+  if($current -ne $observed[$change.Action.Target]){throw 'Hedef dosya guncelleme sirasinda degisti.'}
+  New-Item -ItemType Directory -Path (Split-Path $change.Action.Target -Parent) -Force | Out-Null
   $completed+=$change
   [IO.File]::Copy($change.Source,$change.Action.Target,$true)
   $hash=(Get-FileHash -LiteralPath $change.Source).Hash

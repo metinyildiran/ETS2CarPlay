@@ -58,7 +58,6 @@ Stream the video area of your normal YouTube tab to supported in-cab GPS screens
 [*]26 stock truck models mapped to 18 GPS layouts, including supported GPS accessories.
 [*]Ctrl+Alt+Y controls through the separately installed game plugin.
 [*]1024x512 video; capture up to 60 FPS depending on browser and system load.
-[*]No ReShade required.
 [/list]
 
 [h1]Setup[/h1]
