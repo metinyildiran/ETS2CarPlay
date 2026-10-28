@@ -15,6 +15,30 @@ try{
  }
  $packageInfo=Get-Content -LiteralPath (Join-Path $PackagePath 'Player\resources\app\package.json') -Raw | ConvertFrom-Json
  if($packageInfo.fh6Mode -ne 'browser' -or $packageInfo.version -notmatch '^\d+\.\d+\.\d+$'){throw 'Gecerli bir tarayici aktarim paketi gerekli.'}
+ # Public archives contain no pairing keys. Create a private pair on first install.
+ $extensionConfig=Join-Path $PackagePath 'Extension\config.json'
+ $hostConfig=Join-Path $PackagePath 'Player\resources\app\browser-config.json'
+ if((Test-Path -LiteralPath $extensionConfig) -or (Test-Path -LiteralPath $hostConfig)){
+  if(!(Test-Path -LiteralPath $extensionConfig) -or !(Test-Path -LiteralPath $hostConfig)){throw 'Eslesme ayarlari eksik; paket dosyalarini kontrol et.'}
+  $a=Get-Content -LiteralPath $extensionConfig -Raw | ConvertFrom-Json
+  $b=Get-Content -LiteralPath $hostConfig -Raw | ConvertFrom-Json
+  if($a.token -cnotmatch '^[a-f0-9]{64}$' -or $a.token -cne $b.token -or $a.port -ne 32127 -or $a.port -ne $b.port){throw 'Eslesme ayarlari uyusmuyor; mevcut anahtarlar degistirilmedi.'}
+ }else{
+  $bytes=New-Object byte[] 32
+  $rng=[Security.Cryptography.RandomNumberGenerator]::Create()
+  try{$rng.GetBytes($bytes)}finally{$rng.Dispose()}
+  $key=([BitConverter]::ToString($bytes)).Replace('-','').ToLowerInvariant()
+  $json=@{port=32127;token=$key}|ConvertTo-Json -Compress
+  New-Item -ItemType Directory -Path (Split-Path $extensionConfig -Parent) -Force | Out-Null
+  $created=@()
+  try{
+   foreach($file in @($extensionConfig,$hostConfig)){
+    $stream=[IO.File]::Open($file,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write)
+    $created+=$file
+    try{$data=[Text.Encoding]::UTF8.GetBytes($json);$stream.Write($data,0,$data.Length)}finally{$stream.Dispose()}
+   }
+  }catch{foreach($file in $created){Remove-Item -LiteralPath $file};throw}
+ }
  if(!(Test-Path -LiteralPath $ManifestPath)){
   if([string]::IsNullOrWhiteSpace($GamePath)){
    $defaultGame='D:\SteamLibrary\steamapps\common\Euro Truck Simulator 2'

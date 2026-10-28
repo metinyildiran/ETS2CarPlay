@@ -6,6 +6,8 @@ Tarayıcı videolarını Euro Truck Simulator 2 kabinindeki GPS ekranına aktar�
 
 ## Kurulum
 
+[Hazır Windows paketini indir (ZIP)](https://github.com/metinyildiran/ETS2CarPlay/releases/latest/download/ETS2CarPlay-Windows-x64.zip). ZIP'i kalıcı bir klasöre çıkarın; oyun yardımcı programı buradan başlattığı için kurulumdan sonra klasörü silmeyin veya taşımayın.
+
 Ana klasördeki tek çalıştırma dosyası **`Install.cmd`** dosyasıdır. Menü içermez; tarayıcı aktarım paketini doğrudan kurar veya mevcut kurulumu onarır.
 
 1. ETS2'yi ve CarPlay oynatıcısını kapatın.
@@ -16,7 +18,7 @@ Ana klasördeki tek çalıştırma dosyası **`Install.cmd`** dosyasıdır. Men�
 
 Kurulum dosyası her oyun açılışında çalıştırılmaz. Yardımcı oyunla birlikte başlar. **Ctrl+Alt+Y paneli kaldırılmıştır**; tüm oynatma kontrolleri tarayıcıdadır. Eski 0.5.0 uzantısını devre dışı bırakıp yukarıdaki yeni klasörü yükleyin; aynı klasörde yapılan sonraki güncellemelerde **Yenile** yeterlidir.
 
-**Kaynak kodu deposu:** GitHub'dan indirilen kaynaklar hazır çalıştırılabilir paket içermez. `Install.cmd`, önceden derlenmiş `dist/browser-0.7.0` paketini kullanır; internetten paket indirmez. Bu klasör yoksa aşağıdaki geliştirme adımları gerekir. Steam Atölye de yalnızca ekran bileşenini sağlar; oyun eklentisi, yerel yardımcı ve tarayıcı uzantısı ayrıca kurulmalıdır.
+**Hazır paket ve kaynak kodu:** Yukarıdaki ZIP çalıştırılabilir dosyaları içerir. GitHub'ın kaynak kodu ZIP'i bunları içermez; kaynaklardan kurulum için aşağıdaki geliştirme adımları gerekir. `Install.cmd`, paketin içindeki dosyaları kullanır ve ilk kurulumda bilgisayara özel eşleştirme anahtarı üretir. Steam Atölye yalnızca ekran bileşenini sağlar; oyun eklentisi, yerel yardımcı ve tarayıcı uzantısı ZIP'ten ayrıca kurulmalıdır.
 
 Mevcut kurulumda eksik DLL, oynatıcı ayarı ve ekran modu dosyaları tamamlanır. Var olan dosyalar kurulum kaydından farklıysa üzerlerine yazılmaz. Kurulum kaydı ve yedekleri yerelde tutulur.
 

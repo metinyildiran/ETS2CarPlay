@@ -42,6 +42,9 @@ fs.writeFileSync(path.join(pkg, 'description.txt'), `ETS2CarPlay brings browser 
 Requires a separately installed game plugin, local helper and Chrome/Edge extension; subscribing alone does not enable video. Control playback, quality, subtitles and audio language in your browser. Pause an automatically selected video or stop capture to restore navigation. A compatible GPS screen is required. DRM-protected videos may appear black.
 `);
 fs.writeFileSync(path.join(out, 'description.bbcode.txt'), `[h1]ETS2CarPlay[/h1]
+[url=https://github.com/metinyildiran/ETS2CarPlay/releases/latest/download/ETS2CarPlay-Windows-x64.zip]Download plugin + browser extension (ZIP) / Eklenti + tarayıcı uzantısını indir[/url]
+[url=https://github.com/metinyildiran/ETS2CarPlay]GitHub[/url]
+
 Watch browser videos on supported in-cab GPS screens. Control playback, quality, subtitles and audio language from Chrome or Edge. Fullscreen is not required; choose a video or select its area manually.
 
 [b]Requires a separate game plugin, local helper and browser extension. Subscribing alone does not enable video.[/b]
@@ -51,6 +54,7 @@ Pause an automatically selected video or stop capture to restore navigation. A c
 Tarayıcı videolarını desteklenen kabin GPS ekranlarında izleyin. Oynatma, kalite, altyazı ve ses dilini Chrome veya Edge üzerinden yönetin. Tam ekran gerekmez; videoyu seçebilir veya alanını elle işaretleyebilirsiniz.
 
 [b]Harici oyun eklentisi, yerel yardımcı ve tarayıcı uzantısı ayrıca kurulmalıdır. Yalnızca abone olmak video aktarımını açmaz.[/b]
+ZIP'i kalıcı bir klasöre çıkarın, oyun kapalıyken Install.cmd dosyasını çalıştırın ve paketteki kısa kurulum adımlarını izleyin.
 Otomatik seçilen videoyu duraklatınca veya aktarımı durdurunca navigasyon geri gelir. Uyumlu bir GPS ekranı gerekir. DRM korumalı videolar siyah görünebilir.
 `);
 fs.writeFileSync(path.join(out, 'changelog.txt'), '0.7.3: Reduced in-cab video stutter by bounding tab capture to 1920x1080, requesting a steady 60 FPS cadence, overlapping frame preparation and transfer, and avoiding repeated full-page scans. Actual FPS depends on source/browser/system load. Automatic selection continues with the next video and same-site navigation. Smooth playback confirmed by the original user; 46 automated tests and browser/pixel checks passed. Update the external helper and browser extension to receive these changes, then reload the extension. Workshop dashboard layouts remain identical to tested 0.6.3 layouts; native plugin remains 0.7.0.');

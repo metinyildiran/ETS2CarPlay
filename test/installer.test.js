@@ -85,13 +85,29 @@ test('Single installer completes a fresh browser setup and can be rerun without 
  fs.writeFileSync(path.join(f.game,'bin/win_x64/eurotrucks2.exe'),'test game');
  const quote=s=>"'"+s.replaceAll("'","''")+"'";
  const args=fixtureArgs(f,'install-carplay.ps1',` -GamePath ${quote(f.game)} -DocumentsPath ${quote(path.join(f.dir,'documents'))}`);
+ let pairing;
  for(let run=0;run<2;run++){
   const result=spawnSync('powershell.exe',args,{encoding:'utf8',windowsHide:true,env,timeout:15000});
   assert.ifError(result.error);assert.equal(result.status,0,result.stdout+result.stderr);
   assert.match(result.stdout,/CarPlay kurulumu tamamlandi/);
+  const a=JSON.parse(fs.readFileSync(path.join(f.pkg,'Extension/config.json'),'utf8'));
+  const b=JSON.parse(fs.readFileSync(path.join(f.pkg,'Player/resources/app/browser-config.json'),'utf8'));
+  assert.deepEqual(a,b);assert.match(a.token,/^[a-f0-9]{64}$/);assert.equal(a.port,32127);
+  if(pairing)assert.equal(a.token,pairing);pairing=a.token;
   const installation=JSON.parse(fs.readFileSync(f.manifest,'utf8').replace(/^\uFEFF/,''));
   assert.equal(installation.Version,'0.7.0-browser-experimental');
   assert.equal(installation.NativeRevision,'0.7.0');
   for(const a of installation.Actions)assert.equal(hash(fs.readFileSync(a.Target)),a.After);
  }
+});
+
+test('Installer refuses mismatched pairing keys without modifying them',{skip:process.platform!=='win32'},()=>{
+ const f=fixture();fs.mkdirSync(path.join(f.pkg,'Extension'),{recursive:true});
+ const a=path.join(f.pkg,'Extension/config.json'),b=path.join(f.pkg,'Player/resources/app/browser-config.json');
+ fs.writeFileSync(a,JSON.stringify({port:32127,token:'a'.repeat(64)}));
+ fs.writeFileSync(b,JSON.stringify({port:32127,token:'b'.repeat(64)}));
+ const result=spawnSync('powershell.exe',fixtureArgs(f,'install-carplay.ps1'),{encoding:'utf8',windowsHide:true,env});
+ assert.equal(result.status,1);assert.match(result.stdout,/Eslesme ayarlari uyusmuyor/);
+ assert.equal(JSON.parse(fs.readFileSync(a)).token,'a'.repeat(64));assert.equal(JSON.parse(fs.readFileSync(b)).token,'b'.repeat(64));
+ assert.equal(fs.existsSync(f.dll),false);
 });

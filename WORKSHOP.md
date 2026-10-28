@@ -4,7 +4,7 @@
 
 - Öğe kimliği: `3827251497`, oyun: ETS2 (`227300`).
 - İlk yayın: 25 Ekim 2026, gösterge sürümü 0.6.3, görünürlük Public.
-- Bu paket yalnızca gösterge/UI bileşenidir. Video için harici Windows x64 DirectX 11 DLL'si, Electron yardımcısı ve Chrome/Edge uzantısı ayrıca kurulmalıdır. GitHub deposu henüz hazır ikili kurulum sürümü sunmaz.
+- Bu paket yalnızca gösterge/UI bileşenidir. Video için harici Windows x64 DirectX 11 DLL'si, Electron yardımcısı ve Chrome/Edge uzantısı [hazır ZIP paketinden](https://github.com/metinyildiran/ETS2CarPlay/releases/latest/download/ETS2CarPlay-Windows-x64.zip) ayrıca kurulmalıdır.
 - Yerel `FH6YouTube.scs` ve Atölye kopyası birlikte etkinleştirilmemelidir.
 - Kullanıcı son yükleme çökmesinin düzeldiğini doğruladı; bu bütün tır/servis/konvoy geçişlerinin doğrulandığı anlamına gelmez.
 
