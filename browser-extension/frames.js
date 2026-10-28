@@ -19,15 +19,37 @@ function sourceRect(frame,crop){
 }
 async function pump({readable,base,token,session}){
   const reader=readable.getReader(),canvas=new OffscreenCanvas(1024,512);
-  // Keep scaling on the GPU. Software drawImage on a captured high-resolution
-  // tab used most of a 60-fps frame budget before the HTTP request even began.
-  const ctx=canvas.getContext('2d',{alpha:false}),bytes=new Uint8Array(1024*512*4);
-  let pending=null,draining=null,failed=false,nativeCopy=true;
-  discardPending=()=>{pending?.frame.close();pending=null;};
-  async function drain(){
-    while(pending&&!failed){
-      const {frame,frameCrop,frameEpoch,frameSerial}=pending;pending=null;
+  const ctx=canvas.getContext('2d',{alpha:false});
+  // Two buffers allow GPU readback of the next frame during the current upload.
+  // The bounded queue contains at most one prepared frame and one latest input.
+  const free=[new Uint8Array(1024*512*4),new Uint8Array(1024*512*4)];
+  const stats={received:0,prepared:0,sent:0,copyMs:0,sendMs:0,width:0,height:0};let reported=Date.now();
+  let pending=null,ready=null,preparing=null,uploading=null,failed=false,nativeCopy=true;
+  discardPending=()=>{
+    pending?.frame.close();pending=null;
+    if(ready){free.push(ready.bytes);ready=null;}
+  };
+  function fail(error){
+    if(failed)return;failed=true;discardPending();postMessage({error:error.message});void reader.cancel();
+  }
+  function startUpload(){
+    if(uploading||!ready||failed)return;
+    const item=ready;ready=null;
+    if(!playing||item.epoch!==epoch){free.push(item.bytes);startPrepare();return;}
+    uploading=(async()=>{
+      const start=Date.now();
+      const response=await fetch(base+'/frame',{method:'POST',headers:{'Content-Type':'application/octet-stream','X-FH6-Token':token,'X-FH6-Session':session,'X-FH6-Serial':String(item.serial)},body:item.bytes,signal:AbortSignal.timeout(2500)});
+      if(!response.ok)throw new Error('ETS2 bağlantısı kesildi.');
+      stats.sent++;stats.sendMs+=Date.now()-start;
+    })().catch(fail).finally(()=>{free.push(item.bytes);uploading=null;startUpload();startPrepare();});
+  }
+  function startPrepare(){
+    if(preparing||ready||!pending||!free.length||failed)return;
+    const item=pending;pending=null;const bytes=free.pop();
+    preparing=(async()=>{
+      const {frame,frameCrop,frameEpoch,frameSerial}=item;
       try{
+        const start=Date.now();
         const [sx,sy,sw,sh]=sourceRect(frame,frameCrop);
         const scale=Math.min(1024/sw,512/sh),w=sw*scale,h=sh*scale;
         ctx.fillStyle='#000';ctx.fillRect(0,0,1024,512);ctx.drawImage(frame,sx,sy,sw,sh,(1024-w)/2,(512-h)/2,w,h);
@@ -38,29 +60,25 @@ async function pump({readable,base,token,session}){
           finally{output.close();}
         }
         if(!nativeCopy){
-          // Compatibility path for browsers without explicit BGRA copy support.
           const rgba=ctx.getImageData(0,0,1024,512).data;
           for(let i=0;i<rgba.length;i+=4){bytes[i]=rgba[i+2];bytes[i+1]=rgba[i+1];bytes[i+2]=rgba[i];bytes[i+3]=255;}
         }
-        if(!playing||frameEpoch!==epoch)continue;
-        // One in flight + one newest pending frame. Slow uploads never leave
-        // a FIFO of old frames and don't wait for another capture after finishing.
-        const response=await fetch(base+'/frame',{method:'POST',headers:{'Content-Type':'application/octet-stream','X-FH6-Token':token,'X-FH6-Session':session,'X-FH6-Serial':String(frameSerial)},body:bytes,signal:AbortSignal.timeout(2500)});
-        if(!response.ok)throw new Error('ETS2 bağlantısı kesildi.');
-      }finally{frame.close();}
-    }
-  }
-  function startDrain(){
-    if(draining||!pending||failed)return;
-    draining=drain().catch(error=>{failed=true;discardPending();postMessage({error:error.message});void reader.cancel();}).finally(()=>{draining=null;startDrain();});
+        if(failed||!playing||frameEpoch!==epoch){free.push(bytes);return;}
+        stats.prepared++;stats.copyMs+=Date.now()-start;
+        ready={bytes,epoch:frameEpoch,serial:frameSerial};startUpload();
+      }catch(error){free.push(bytes);throw error;}
+      finally{frame.close();}
+    })().catch(fail).finally(()=>{preparing=null;startPrepare();});
   }
   try{
     while(!failed){
       const {value:frame,done}=await reader.read();if(done)break;
+      stats.received++;stats.width=frame.displayWidth;stats.height=frame.displayHeight;
+      if(Date.now()-reported>=2000){reported=Date.now();postMessage({metrics:{...stats,at:reported}});}
       if(!playing||!validCrop(crop)){frame.close();continue;}
-      discardPending();pending={frame,frameCrop:{...crop},frameEpoch:epoch,frameSerial:applied};
-      startDrain();
+      pending?.frame.close();pending={frame,frameCrop:{...crop},frameEpoch:epoch,frameSerial:applied};
+      startPrepare();
     }
-    while(draining)await draining;
+    while(preparing||uploading)await Promise.all([preparing,uploading]);
   }finally{discardPending();await reader.cancel();}
 }

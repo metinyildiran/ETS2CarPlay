@@ -16,14 +16,18 @@ async function begin(msg){
   const ctx=current={...config,base:`http://127.0.0.1:${config.port}`,tabId:msg.tabId,applied:0};
   try{
     // Consume the short-lived stream ID immediately, before any server roundtrip.
-    ctx.stream=await navigator.mediaDevices.getUserMedia({audio:{mandatory:{chromeMediaSource:'tab',chromeMediaSourceId:msg.streamId}},video:{mandatory:{chromeMediaSource:'tab',chromeMediaSourceId:msg.streamId,maxFrameRate:60}}});
+    // Bound the compositor readback BEFORE resizing to the cabin texture. A 1440p/
+    // 4K tab otherwise competes with the foreground game at full desktop size.
+    // Request a steady cadence; the actual rate still depends on Chromium/GPU load.
+    ctx.stream=await navigator.mediaDevices.getUserMedia({audio:{mandatory:{chromeMediaSource:'tab',chromeMediaSourceId:msg.streamId}},video:{mandatory:{chromeMediaSource:'tab',chromeMediaSourceId:msg.streamId,maxWidth:1920,maxHeight:1080,minFrameRate:60,maxFrameRate:60}}});
     ctx.output=new AudioContext();ctx.source=ctx.output.createMediaStreamSource(ctx.stream);ctx.source.connect(ctx.output.destination);await ctx.output.resume();
     const connection=await api(ctx,'/connect',{method:'POST',body:{}});ctx.session=connection.session;
     const track=ctx.stream.getVideoTracks()[0];track.onended=()=>{if(current===ctx)void finish('Sekme paylaşımı sona erdi.');};
+    track.contentHint='motion';
     if(!window.MediaStreamTrackProcessor)throw new Error('Bu tarayıcı sürümü aktarımı desteklemiyor. Chrome veya Edge’i güncelle.');
     const readable=new MediaStreamTrackProcessor({track,maxBufferSize:1}).readable;
     ctx.worker=new Worker('frames.js');ctx.worker.postMessage({type:'start',readable,base:ctx.base,token:ctx.token,session:ctx.session},[readable]);
-    ctx.worker.onmessage=event=>{if(event.data?.error&&current===ctx)void finish(event.data.error);};
+    ctx.worker.onmessage=event=>{if(event.data?.metrics)ctx.metrics=event.data.metrics;if(event.data?.error&&current===ctx)void finish(event.data.error);};
     ctx.worker.onerror=()=>{if(current===ctx)void finish('Görüntü aktarımı durdu; yeniden bağlan.');};
     async function poll(){
       if(current!==ctx)return;
@@ -37,7 +41,7 @@ async function begin(msg){
         }
         const result=await chrome.runtime.sendMessage({to:'service',type:'snapshot',tabId:ctx.tabId});
         if(!result?.state)throw new Error(result?.message||'Video sekmesine erişilemiyor.');
-        const state={...result.state,applied:ctx.applied};
+        const state={...result.state,applied:ctx.applied,metrics:ctx.metrics};
         await api(ctx,'/state',{method:'POST',body:state});
         if(current!==ctx)return;
         ctx.worker.postMessage({type:'state',playing:state.playing,applied:ctx.applied,crop:state.crop});

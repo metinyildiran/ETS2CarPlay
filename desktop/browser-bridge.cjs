@@ -11,11 +11,11 @@ function cleanState(value){
     audio:{videoId:id,supported:tracks.length>0,selected:String(value.audio?.selected||'').slice(0,1024),tracks},
     captions:{videoId:id,available:value.captions?.available===true,enabled:value.captions?.enabled===true}};
 }
-function createBrowserBridge({token,onFrame,onStatus=()=>{},onAudio=()=>{},onCaptions=()=>{},port=32127,timeout=3000}){
+function createBrowserBridge({token,onFrame,onStatus=()=>{},onAudio=()=>{},onCaptions=()=>{},onDiagnostics=()=>{},port=32127,timeout=3000}){
   if(!/^[a-f0-9]{64}$/.test(token))throw new Error('Invalid pairing token');
   let session='',sessionOrigin='',lastState=0,active=false,serial=0,barrier=0,queue=[];
   const clear=()=>{active=false;onFrame(Buffer.alloc(BYTES));};
-  const reset=()=>{clear();session='';queue=[];onAudio({tracks:[]});onCaptions({});onStatus('Video sekmesinde Kabine aktar düğmesine bas.');};
+  const reset=()=>{clear();session='';queue=[];onDiagnostics({playing:false,metrics:{}});onAudio({tracks:[]});onCaptions({});onStatus('Video sekmesinde Kabine aktar düğmesine bas.');};
   const server=http.createServer(async(req,res)=>{
     const origin=req.headers.origin||'';
     if(req.headers.host!==`127.0.0.1:${server.address().port}`||(origin&&!/^chrome-extension:\/\/[a-p]{32}$/.test(origin))){res.writeHead(403).end();return;}
@@ -38,9 +38,14 @@ function createBrowserBridge({token,onFrame,onStatus=()=>{},onAudio=()=>{},onCap
       if(req.url==='/commands'&&req.method==='GET'){const result=queue;queue=[];json(result);return;}
       if(req.url==='/disconnect'&&req.method==='POST'){reset();res.writeHead(204).end();return;}
       if(req.url==='/state'&&req.method==='POST'){
-        const state=cleanState(JSON.parse((await read(131072)).toString()));
+        const raw=JSON.parse((await read(131072)).toString()),state=cleanState(raw);
         if(session!==key){res.writeHead(409).end();return;}
         lastState=Date.now();const next=state.playing&&state.applied>=barrier;
+        const diagnostics={sourceId:state.sourceId,playing:state.playing};
+        for(const key of ['sourceFrames','sourceAt'])if(Number.isFinite(raw[key])&&raw[key]>=0)diagnostics[key]=raw[key];
+        diagnostics.metrics={};
+        for(const key of ['received','prepared','sent','copyMs','sendMs','width','height','at'])if(Number.isFinite(raw.metrics?.[key])&&raw.metrics[key]>=0)diagnostics.metrics[key]=raw.metrics[key];
+        onDiagnostics(diagnostics);
         if(!next&&active)clear();active=next;onAudio(state.audio);onCaptions(state.captions);
         onStatus(active?'Tarayıcıdaki video oynatılıyor.':'Video duraklatıldı veya görüntü bekleniyor.');res.writeHead(204).end();return;
       }

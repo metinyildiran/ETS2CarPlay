@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
-const out = path.join(root, 'dist/workshop-0.7.0');
+const out = path.join(root, 'dist/workshop-0.7.3');
 const content = path.join(out, 'content');
 const pkg = path.join(content, 'ets2_161');
 const inventory = JSON.parse(fs.readFileSync(path.join(root, 'research/fleet-inventory.json')));
@@ -29,7 +29,7 @@ package_version_info : .ets2_161 {
 fs.writeFileSync(path.join(pkg, 'manifest.sii'), `SiiNunit
 {
 mod_package : .package {
- package_version: "0.7.0-experimental"
+ package_version: "0.7.3-experimental"
  author: "metinyildiran"
  category[]: "interior"
  category[]: "ui"
@@ -38,7 +38,7 @@ mod_package : .package {
 }
 }
 `);
-fs.writeFileSync(path.join(pkg, 'description.txt'), `ETS2CarPlay 0.7.0 - dashboard component (tested 0.6.3 layouts preserved).
+fs.writeFileSync(path.join(pkg, 'description.txt'), `ETS2CarPlay 0.7.3 - dashboard component (tested 0.6.3 layouts preserved).
 Requires the separate FH6Standalone.dll, local helper and Chrome/Edge extension from the ETS2CarPlay project. Subscribing alone does NOT enable video.
 Source and setup: https://github.com/metinyildiran/ETS2CarPlay
 Pause an automatically selected video, or stop capture, to return to navigation. Manual region capture requires Stop capture. Disable the local FH6YouTube.scs copy when enabling this Workshop copy.
@@ -59,7 +59,9 @@ Stream a video area from your Chrome/Edge tab to supported in-cab GPS screens. V
 [*]Playback controls stay in the browser; the in-game panel has been removed in version 0.7.0.
 [*]The extension is now named ETS2 Video Aktarımı.
 [*]Fullscreen is not required: capture follows the video bounds and accounts for tab padding and page zoom.
-[*]1024x512 video; capture up to 60 FPS depending on browser and system load.
+[*]1024x512 video; tab capture limited to 1920x1080 with a requested 60 FPS cadence, depending on browser and system load.
+[*]Version 0.7.3 reduces capture overhead and overlaps frame preparation with transfer. Update the external helper and extension separately.
+[*]Automatic selection follows the next video in the same player and same-site navigation.
 [/list]
 
 [h1]Setup[/h1]
@@ -69,24 +71,24 @@ Stream a video area from your Chrome/Edge tab to supported in-cab GPS screens. V
 4. Play a video and select Kabine aktar. Choose a video from the list, or use Alan seç ve aktar to mark a region.
 5. Keep the tab open and the entire selected video/region within the page viewport. Playback controls stay in the browser.
 
-Automatically selected videos restore navigation when paused, ended or no longer visible. Manual region capture does not know the playback state: use Aktarımı durdur to restore navigation. Scroll, resize or zoom changes invalidate a manually selected region; select it again. Reloading the page requires reconnecting.
+Automatically selected videos restore navigation when paused, ended or no longer visible; capture resumes when the next video appears in the same player. Automatic mode follows same-site navigation. Changing websites requires reconnecting. Manual region capture does not know the playback state: use Aktarımı durdur to restore navigation. Scroll, resize, zoom or page navigation invalidates a manually selected region; select it again.
 
 DRM-protected content may appear black. Cross-origin iframe players and closed shadow DOM players may need manual region selection. Compatibility with every website is not guaranteed. Audio comes from the selected tab, including any other sounds in that tab. Only the selected video/region is sent to the local game bridge; it is not uploaded to an internet streaming server.
 
 [h1]Compatibility[/h1]
 Windows x64, DirectX 11, ETS2 1.61. Trucks/cabins without a built-in GPS need a compatible GPS accessory; Cabin Accessories content requires its DLC. Third-party truck/dashboard mods and all truck/service/convoy combinations have not been exhaustively tested. Other mods replacing the same GPS layouts can conflict.
 
-This 0.7.0 Workshop update preserves the dashboard layouts from 0.6.3, including the child-order and SCS unit-name fixes. The new browser features and removal of Ctrl+Alt+Y require updating the external components to 0.7.0; a Workshop subscription cannot update the DLL, helper or browser extension. The previous loading-crash fix was confirmed by the original user. Version 0.7.0 passed automated browser/pixel and isolated DirectX tests; actual gameplay and every truck/service transition have not been exhaustively tested.
+This 0.7.3 Workshop update preserves the dashboard layouts from 0.6.3, including the child-order and SCS unit-name fixes. Use the 0.7.0 native plugin with the current helper and 0.7.3 browser extension; a Workshop subscription cannot update these external components. The original user confirmed smooth in-cab playback with 0.7.3 on 28 October 2026. Automated tests and browser/pixel checks passed; this does not guarantee a fixed frame rate on every system or cover every truck/service transition.
 
 [h1]Turkce[/h1]
-Bu paket kabin ekranı dosyalarını kurar. Yalnızca abone olmak yeterli değildir: harici oyun eklentisi, yerel yardımcı ve tarayıcı uzantısını da 0.7.0 sürümüne güncelleyin. GitHub kaynak kodu ve derleme talimatlarını sunar; hazır ikili kurulum sürümü yoktur. Yerel FH6YouTube.scs kopyasını devre dışı bırakın.
+Bu paket kabin ekranı dosyalarını kurar. Yalnızca abone olmak yeterli değildir: 0.7.0 oyun eklentisiyle güncel yerel yardımcıyı ve 0.7.3 tarayıcı uzantısını kullanın. 0.7.3 kabin videosunun takılmasını azaltır; otomatik seçim sonraki videoda devam eder. Güncellemeden sonra Chrome/Edge uzantısını Yenile ile yeniden yükleyin. GitHub kaynak kodu ve derleme talimatlarını sunar; hazır ikili kurulum sürümü yoktur. Yerel FH6YouTube.scs kopyasını devre dışı bırakın.
 
 Ctrl+Alt+Y paneli kaldırıldı; kontroller tarayıcıda. Uzantının yeni adı ETS2 Video Aktarımı. YouTube dışındaki HTML5 videoları otomatik seçilebilir; bulunamayan oynatıcılar için Alan seç ve aktar kullanılabilir. Tam ekran gerekmez. Otomatik seçilen video duraklayınca navigasyon geri gelir; elle alan seçiminde Aktarımı durdur düğmesi kullanılmalıdır. DRM korumalı videolar siyah görünebilir.
 
 [h1]Credits[/h1]
 Original dashboard definitions: SCS Software. Video integration: ETS2CarPlay / metinyildiran. Not affiliated with SCS Software, YouTube or Apple.
 `);
-fs.writeFileSync(path.join(out, 'changelog.txt'), '0.7.0: Updated setup and compatibility information for ETS2 Video Aktarımı. External components now support generic HTML5 videos, video selection and manual region capture; video cropping accounts for bounds, page zoom and tab padding. Ctrl+Alt+Y panel removed; controls remain in the browser. Workshop dashboard layouts remain identical to the tested 0.6.3 layouts. Update the external DLL, helper and browser extension separately; subscribing alone does not install these features.');
+fs.writeFileSync(path.join(out, 'changelog.txt'), '0.7.3: Reduced in-cab video stutter by bounding tab capture to 1920x1080, requesting a steady 60 FPS cadence, overlapping frame preparation and transfer, and avoiding repeated full-page scans. Actual FPS depends on source/browser/system load. Automatic selection continues with the next video and same-site navigation. Smooth playback confirmed by the original user; 46 automated tests and browser/pixel checks passed. Update the external helper and browser extension to receive these changes, then reload the extension. Workshop dashboard layouts remain identical to tested 0.6.3 layouts; native plugin remains 0.7.0.');
 const unsupported = path.join(content, 'unsupported');
 fs.mkdirSync(unsupported, {recursive: true});
 fs.copyFileSync(path.join(pkg, 'manifest.sii'), path.join(unsupported, 'manifest.sii'));

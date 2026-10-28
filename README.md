@@ -27,14 +27,14 @@ Mevcut kurulumda eksik DLL, oynatıcı ayarı ve ekran modu dosyaları tamamlan�
 - YouTube dışındaki HTML5 videoları, video listesi ve elle alan seçimi.
 - Otomatik seçimde aynı sitedeki sonraki videoya geçişte bağlantıyı koruma ve yenilenen oynatıcıyı yeniden bulma.
 - Tam ekran gerektirmeyen kırpma: video sınırları, sayfa yakınlaştırması ve yakalama karesindeki kenar boşlukları hesaba katılır.
-- 1024×512 kabin görüntüsü; yakalama üst sınırı 60 FPS. Gerçek hız sisteme ve tarayıcıya bağlıdır.
+- 1024×512 kabin görüntüsü; sekme yakalaması en fazla 1920×1080 ve 60 FPS. Gerçek hız sisteme ve tarayıcıya bağlıdır.
 - Hesaplar ve çerezler tarayıcıda kalır. Seçilen alandaki altyazılar, menüler ve reklamlar da aktarılır; ses seçilen sekmeden gelir.
 
 Video alanı sekmenin görünür bölümünde kalmalıdır. Başka alan adlarından gömülen oynatıcılar otomatik bulunamayabilir; elle alan seçimi kullanılabilir. Elle seçimde duraklama algılanmaz; navigasyona dönmek için **Aktarımı durdur** gerekir. Sayfa kaydırılır veya pencere boyutu değişirse alan yeniden seçilir. DRM korumalı içerikler siyah görünebilir; her site için uyumluluk garantisi yoktur. Ayrıntılar: [BROWSER.md](BROWSER.md).
 
 Windows x64, DirectX 11 ve ETS2 1.61 hedeflenir. Ekransız kabinler uyumlu GPS aksesuarı gerektirir. Üçüncü taraf tır/ekran modları ve bütün servis/konvoy geçişleri doğrulanmış değildir. Ayrıntılar: [FLEET.md](FLEET.md), [CONVOY.md](CONVOY.md).
 
-Bileşen sürümleri: gösterge **0.6.3**, yerel oyun eklentisi ve tarayıcı yardımcısı **0.7.0**, tarayıcı uzantısı **0.7.1**. Önceki sürümdeki yükleme çökmesinin düzeldiği kullanıcı tarafından 25 Ekim 2026 tarihinde doğrulandı; 0.7.x'in gerçek oyun içi doğrulaması ayrıca yapılmalıdır.
+Bileşen sürümleri: gösterge **0.6.3**, yerel oyun eklentisi ve tarayıcı yardımcısı **0.7.0**, tarayıcı uzantısı **0.7.3**. 0.7.2, normal oynatmada tüm sayfayı tekrar taramayı kaldırır ve sonraki karenin hazırlanmasını mevcut karenin gönderimiyle örtüştürür; iki sabit piksel tamponu ve sınırlı kuyruk kullanılır. 0.7.3, yüksek çözünürlüklü sekmelerin yakalama yükünü azaltır ve hareketli video için 60 FPS yakalama ister; bu istek arka planda 60 FPS garantisi değildir. Yerel yardımcı, performans tanılaması için son beş dakikanın yalnızca sayısal hız ölçümlerini `capture-diagnostics.jsonl` dosyasında tutar; adres, başlık, hesap veya video görüntüsü kaydetmez. Önceki sürümdeki yükleme çökmesinin düzeldiği kullanıcı tarafından 25 Ekim 2026 tarihinde doğrulandı; 0.7.3 ile kabin videosunun akıcı olduğu kullanıcı tarafından 28 Ekim 2026 tarihinde doğrulandı. Aynı denemenin yerel ölçümlerinde kaynak video yaklaşık 24 FPS oynarken kare hazırlama süresi yaklaşık 230 ms'den 5–8 ms'ye indi; bu sonuç diğer sistemler için sabit FPS garantisi değildir.
 
 ## Geliştirme ve paketleme
 

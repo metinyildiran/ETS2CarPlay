@@ -9,24 +9,24 @@ function pageVideo(action='snapshot',selection='auto'){
     if(!r||r.width<2||r.height<2||r.left<0||r.top<0||r.right>vp.width||r.bottom>vp.height)return null;
     return {x:r.left/vp.width,y:r.top/vp.height,w:r.width/vp.width,h:r.height/vp.height,viewportWidth:vp.width,viewportHeight:vp.height};
   };
-  function collect(root=document,ox=0,oy=0,sx=1,sy=1,clip={left:0,top:0,right:vp.width,bottom:vp.height},depth=0){
+  function collect(root=document,ox=0,oy=0,sx=1,sy=1,clip={left:0,top:0,right:vp.width,bottom:vp.height},depth=0,route=null){
     if(depth>8)return [];
     const found=[];
-    for(const node of root.querySelectorAll('video,iframe')){
+    for(const node of route?[route[0]]:root.querySelectorAll('video,iframe')){
       const r=node.getBoundingClientRect(),style=node.ownerDocument.defaultView.getComputedStyle(node);
       if(style.display==='none'||style.visibility==='hidden'||Number(style.opacity)===0||r.width<2||r.height<2)continue;
       const tx=node.offsetWidth?r.width/node.offsetWidth:1,ty=node.offsetHeight?r.height/node.offsetHeight:1;
       const left=ox+(r.left+node.clientLeft*tx)*sx,top=oy+(r.top+node.clientTop*ty)*sy;
       const rect={left,top,width:node.clientWidth*tx*sx,height:node.clientHeight*ty*sy};rect.right=left+rect.width;rect.bottom=top+rect.height;
       if(node.tagName==='IFRAME'){
-        try{if(node.contentDocument)found.push(...collect(node.contentDocument,left,top,sx*tx,sy*ty,{left:Math.max(clip.left,left),top:Math.max(clip.top,top),right:Math.min(clip.right,rect.right),bottom:Math.min(clip.bottom,rect.bottom)},depth+1));}catch{}
+        try{if(node.contentDocument)found.push(...collect(node.contentDocument,left,top,sx*tx,sy*ty,{left:Math.max(clip.left,left),top:Math.max(clip.top,top),right:Math.min(clip.right,rect.right),bottom:Math.min(clip.bottom,rect.bottom)},depth+1,route?route.slice(1):null));}catch{}
       }else{
         if(!state.ids.has(node))state.ids.set(node,String(state.next++));
         const contained=rect.left>=clip.left&&rect.top>=clip.top&&rect.right<=clip.right&&rect.bottom<=clip.bottom;
         found.push({id:state.ids.get(node),node,rect,crop:contained?normalize(rect):null,playing:!node.paused&&!node.ended&&node.readyState>=2});
       }
     }
-    for(const node of root.querySelectorAll('*'))if(node.shadowRoot)found.push(...collect(node.shadowRoot,ox,oy,sx,sy,clip,depth+1));
+    if(!route)for(const node of root.querySelectorAll('*'))if(node.shadowRoot)found.push(...collect(node.shadowRoot,ox,oy,sx,sy,clip,depth+1));
     return found;
   }
   if(action==='region'){
@@ -54,7 +54,14 @@ function pageVideo(action='snapshot',selection='auto'){
     const crop=state.region.invalid?null:normalize(state.region.rect);
     return {sourceId:'region',playing:!!crop,crop,reason:crop?'':'Sayfa konumu değişti. Alanı yeniden seç.'};
   }
-  const videos=collect();
+  // Once selected, measure only that video and its iframe ancestors. Scanning
+  // every element/shadow root on each heartbeat competes with video rendering.
+  let route=null;
+  if(action==='snapshot'&&state.selected?.isConnected&&!state.selected.ended){
+    route=[state.selected];let doc=state.selected.ownerDocument;
+    while(doc!==document){const frame=doc.defaultView?.frameElement;if(!frame){route=null;break;}route.unshift(frame);doc=frame.ownerDocument;}
+  }
+  const videos=collect(document,0,0,1,1,undefined,0,route);
   const best=items=>items.filter(v=>v.crop).sort((a,b)=>Number(b.playing)-Number(a.playing)||b.rect.width*b.rect.height-a.rect.width*a.rect.height)[0];
   const remember=v=>{state.selected=v.node;state.anchor={...v.rect};};
   if(action==='list')return videos.map(v=>({id:v.id,label:`Video ${v.id} · ${Math.round(v.rect.width)}×${Math.round(v.rect.height)}${v.playing?' · oynuyor':''}`,visible:!!v.crop}));
@@ -82,5 +89,6 @@ function pageVideo(action='snapshot',selection='auto'){
     }
   }
   if(v?.crop)state.anchor={...v.rect};
-  return {sourceId:v?'video-'+v.id:'',playing:!!v?.playing&&!!v?.crop,crop:v?.crop||null,reason:!v?'Sonraki video bekleniyor. Video görünür olduğunda aktarım devam eder.':!v.crop?'Video alanını tamamen görünür tut.':''};
+  const quality=v?.node.getVideoPlaybackQuality?.();
+  return {sourceId:v?'video-'+v.id:'',sourceFrames:quality?quality.totalVideoFrames-quality.droppedVideoFrames:null,sourceAt:Date.now(),playing:!!v?.playing&&!!v?.crop,crop:v?.crop||null,reason:!v?'Sonraki video bekleniyor. Video görünür olduğunda aktarım devam eder.':!v.crop?'Video alanını tamamen görünür tut.':''};
 }

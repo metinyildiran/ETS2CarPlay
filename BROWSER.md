@@ -29,7 +29,7 @@ Sekmenin kapanması veya aktarımın durdurulması navigasyonu geri getirir. Bek
 - Başka alan adından yüklenen iframe videoları ve kapalı shadow DOM oynatıcıları otomatik bulunamayabilir; alan seçimi kullanılabilir. Bu işlem ek sitelere sürekli erişim izni istemez.
 - DRM ile korunan içerikler tarayıcı tarafından siyah gösterilebilir. Her site ve oynatıcı için uyumluluk garantisi yoktur.
 - Yerel video dosyaları için tarayıcının uzantı ayarlarındaki dosya URL'lerine erişim izni gerekebilir. Dahili tarayıcı sayfaları desteklenmez.
-- Kabin görüntüsü 1024×512, yakalama üst sınırı 60 FPS'tir. Gerçek hız kaynak videoya, tarayıcıya ve sistem yüküne bağlıdır.
+- Kabin görüntüsü 1024×512'dir. 0.7.3 sekmeyi en fazla 1920×1080 yakalar ve 60 FPS ister; gerçek hız kaynak videoya, tarayıcıya ve sistem yüküne bağlıdır.
 - Hesap, oturum ve çerezler tarayıcıda kalır. Görüntü internete tekrar yüklenmez.
 
 ## Güncelleme

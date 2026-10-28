@@ -19,7 +19,7 @@ if(ac.token!==bc.token||ac.port!==bc.port||!/^[a-f0-9]{64}$/.test(ac.token))thro
 const changes=[];
 const add=(target,data)=>changes.push({target:path.join(out,target),data});
 for(const name of ['manifest.json','page-player.js','service-worker.js','popup.html','popup.js','popup.css','offscreen.html','offscreen.js','frames.js'])add('Extension/'+name,fs.readFileSync(path.join(root,'browser-extension',name)));
-for(const name of ['browser-host.cjs','browser-bridge.cjs'])add('Player/resources/app/'+name,fs.readFileSync(path.join(root,'desktop',name)));
+for(const name of ['browser-host.cjs','browser-bridge.cjs','browser-diagnostics.cjs'])add('Player/resources/app/'+name,fs.readFileSync(path.join(root,'desktop',name)));
 add('FH6Standalone.dll',fs.readFileSync(path.join(root,'dist/standalone/FH6Standalone.dll')));
 add('README.md',fs.readFileSync(path.join(root,'BROWSER.md')));
 add('scripts/update-ingame.ps1',fs.readFileSync(path.join(root,'scripts/update-ingame.ps1')));

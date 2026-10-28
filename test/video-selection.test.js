@@ -22,13 +22,14 @@ test('Generic video selection uses the video rectangle and stays on a paused sou
 test('Offscreen video does not leak adjacent page content and removed sources stop',()=>{
   const h=harness(),a=h.add(128,72,640,360);h.call('select');
   a.r.top=-10;assert.equal(h.call().crop,null);assert.equal(h.call().playing,false);
-  h.nodes.length=0;assert.equal(h.call().sourceId,'');
+  a.v.isConnected=false;h.nodes.length=0;assert.equal(h.call().sourceId,'');
   assert.throws(()=>h.call('select'),/video bulunamadı/);
 });
 test('Same-origin iframe coordinates and clipping are transformed into the top viewport',()=>{
   const h=harness(),child=h.add(20,30,400,200);h.nodes.length=0;
   const childDoc={querySelectorAll:()=>[child.v]};
   h.nodes.push({tagName:'IFRAME',getBoundingClientRect:()=>({left:100,top:50,width:600,height:400}),ownerDocument:h.doc,offsetWidth:600,offsetHeight:400,clientWidth:600,clientHeight:400,clientLeft:0,clientTop:0,contentDocument:childDoc});
+  childDoc.defaultView={...h.doc.defaultView,frameElement:h.nodes[0]};child.v.ownerDocument=childDoc;
   const s=h.call('select');assert.equal(s.crop.x,120/1280);assert.equal(s.crop.y,80/720);
   child.r.left=250;assert.equal(h.call().crop,null);
 });
@@ -62,4 +63,11 @@ test('Automatic mode reacquires a video in a fresh document; fixed mode waits fo
   const h=harness();h.add(128,72,640,360);
   assert.equal(h.call('snapshot','fixed').playing,false);
   assert.equal(h.call('snapshot','follow').playing,true);
+});
+
+test('Steady playback measures only the selected video without rescanning the DOM',()=>{
+  const h=harness(),video=h.add(128,72,640,360);h.call('select');
+  h.doc.querySelectorAll=()=>{throw Error('Unexpected full-page scan');};
+  for(let i=0;i<100;i++){video.r.left=128+i;assert.equal(h.call().crop.x,(128+i)/1280);}
+  video.v.paused=true;assert.equal(h.call().playing,false);
 });

@@ -1,6 +1,6 @@
 # Steam Atölye
 
-[ETS2CarPlay - YouTube GPS Screens (External Plugin Required)](https://steamcommunity.com/sharedfiles/filedetails/?id=3827251497)
+[ETS2CarPlay - Browser Video GPS Screens (External Plugin Required)](https://steamcommunity.com/sharedfiles/filedetails/?id=3827251497)
 
 - Öğe kimliği: `3827251497`, oyun: ETS2 (`227300`).
 - İlk yayın: 25 Ekim 2026, gösterge sürümü 0.6.3, görünürlük Public.
@@ -16,7 +16,9 @@ Gösterge kaynakları hazırlanıp `build/navigation-mod` üretildikten sonra:
 node scripts/package-workshop.cjs
 ```
 
-SCS Workshop Uploader'a `dist/workshop-0.6.3/content` klasörü ve `dist/workshop-0.6.3/preview.jpg` verilir. Açıklama ve sürüm notu aynı üst klasörde üretilir. Kapak ve oyun içi simge kaynakları `assets/workshop/` altındadır.
+SCS Workshop Uploader'a `dist/workshop-0.7.3/content` klasörü ve `dist/workshop-0.7.3/preview.jpg` verilir. Açıklama ve sürüm notu aynı üst klasörde üretilir. Kapak ve oyun içi simge kaynakları `assets/workshop/` altındadır.
+
+0.7.3 paketinin ekran düzenleri 0.6.3 ile aynıdır. Performans düzeltmesi güncel harici yardımcıyı ve 0.7.3 tarayıcı uzantısını gerektirir; yerel DLL sürümü 0.7.0 kalır. Atölye aboneliği bu harici bileşenleri güncellemez.
 
 `versions.sii`, 1.61 için `ets2_161` paketini seçer. Diğer sürümlerde yalnızca bilgi içeren `unsupported` paketi kullanılır. DLC ekranları kendi `dlc_*` bölümlerine ayrılmıştır; ortak materyal ve temel oyun ekranları `base` altında bulunur. Bu yapı farklı DLC sahipliklerinde gereksiz ekran tanımları yüklemez.
 

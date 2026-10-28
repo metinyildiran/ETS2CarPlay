@@ -1,7 +1,8 @@
 importScripts('page-player.js');
 const supported=url=>{try{return ['https:','http:','file:'].includes(new URL(url).protocol);}catch{return false;}};
 let starting=false,capturedTab,capturedOrigin,captureMode,generation=0,navigationUntil=0;
-const status=message=>chrome.storage.session.set({status:String(message).slice(0,300)});
+let lastStatus;
+const status=message=>{const text=String(message).slice(0,300);if(text===lastStatus)return Promise.resolve();lastStatus=text;return chrome.storage.session.set({status:text});};
 const run=async(tabId,action,selection)=>{
   const result=await chrome.scripting.executeScript({target:{tabId},func:pageVideo,args:[action,selection||'auto']});
   return result[0]?.result;
