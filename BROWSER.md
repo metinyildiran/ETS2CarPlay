@@ -5,7 +5,7 @@
 ## Kurulum ve kullanım
 
 1. ETS2 kapalıyken proje kökündeki `Install.cmd` dosyasını çalıştırın. Hazır yerel paket gerekir; geliştirme adımları [README](README.md) içinde.
-2. Chrome'da `chrome://extensions`, Edge'de `edge://extensions` açın. Geliştirici modunda **Paketlenmemiş öğe yükle** ile `dist/browser-0.7.0/Extension` klasörünü seçin.
+2. Chrome'da `chrome://extensions`, Edge'de `edge://extensions` açın. Geliştirici modunda **Paketlenmemiş öğe yükle** ile kurucunun gösterdiği oyun belgeleri altındaki `mod\ETS2CarPlay\Extension` klasörünü seçin. İndirme klasöründeki uzantıyı kullanmayın.
 3. Steam Atölye ekran moduna abone olup oyunda etkinleştirin. GitHub ZIP'i ekran modunu içermez. Eski yerel ekran modu varsa devre dışı bırakın.
 4. Tarayıcıda videoyu açıp oynatın. Eklentiden **Kabine aktar** seçin. Varsayılan olarak görünür ve oynayan en büyük video seçilir; birden fazla video varsa listeden seçim yapabilirsiniz.
 5. Video bulunamazsa **Alan seç ve aktar** düğmesine basın, sayfada video bölgesini sürükleyerek işaretleyin. Esc ile iptal edebilirsiniz.
@@ -34,6 +34,6 @@ Sekmenin kapanması veya aktarımın durdurulması navigasyonu geri getirir. Bek
 
 ## Güncelleme
 
-Hazır paket güncellendikten sonra oyun kapalıyken `Install.cmd` yeniden çalıştırılır. 0.5.0 klasöründeki eski uzantıyı kullanıyorsanız devre dışı bırakıp **Paketlenmemiş öğe yükle** ile yeni `dist/browser-0.7.0/Extension` klasörünü seçin. Aynı klasörde yapılan sonraki güncellemelerde **Yenile** yeterlidir. Aynı paketin `Extension` ve `Player` klasörlerini birlikte kullanın; yerel eşleştirme ayarlarını paylaşmayın.
+Oyun kapalıyken yeni ZIP'teki `Install.cmd` çalıştırılır. Kurucu oyun belgeleri altındaki `mod\ETS2CarPlay` klasörünü günceller; mevcut eşleştirme anahtarı korunur. Uzantı hâlâ indirme klasöründen yüklüyse kaldırıp kalıcı `Extension` klasöründen yeniden yükleyin. Sonraki güncellemelerde **Yenile** yeterlidir. Başarılı kurulumdan sonra ZIP ve indirme klasörü silinebilir. Yerel eşleştirme ayarlarını paylaşmayın.
 
 Tır kapsamı ve test sınırları: [FLEET.md](FLEET.md).

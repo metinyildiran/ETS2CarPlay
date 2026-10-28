@@ -54,7 +54,7 @@ Pause an automatically selected video or stop capture to restore navigation. A c
 Tarayıcı videolarını desteklenen kabin GPS ekranlarında izleyin. Oynatma, kalite, altyazı ve ses dilini Chrome veya Edge üzerinden yönetin. Tam ekran gerekmez; videoyu seçebilir veya alanını elle işaretleyebilirsiniz.
 
 [b]Harici oyun eklentisi, yerel yardımcı ve tarayıcı uzantısı ayrıca kurulmalıdır. Yalnızca abone olmak video aktarımını açmaz.[/b]
-ZIP'i kalıcı bir klasöre çıkarın, oyun kapalıyken Install.cmd dosyasını çalıştırın ve paketteki kısa kurulum adımlarını izleyin.
+ZIP'i çıkarıp oyun kapalıyken Install.cmd dosyasını çalıştırın. Dosyalar oyun belgelerindeki mod/ETS2CarPlay klasörüne kurulur; uzantıyı buradaki Extension klasöründen yükleyin. Kurulumdan sonra indirme klasörü silinebilir.
 Otomatik seçilen videoyu duraklatınca veya aktarımı durdurunca navigasyon geri gelir. Uyumlu bir GPS ekranı gerekir. DRM korumalı videolar siyah görünebilir.
 `);
 fs.writeFileSync(path.join(out, 'changelog.txt'), '0.7.3: Reduced in-cab video stutter by bounding tab capture to 1920x1080, requesting a steady 60 FPS cadence, overlapping frame preparation and transfer, and avoiding repeated full-page scans. Actual FPS depends on source/browser/system load. Automatic selection continues with the next video and same-site navigation. Smooth playback confirmed by the original user; 46 automated tests and browser/pixel checks passed. Update the external helper and browser extension to receive these changes, then reload the extension. Workshop dashboard layouts remain identical to tested 0.6.3 layouts; native plugin remains 0.7.0.');
