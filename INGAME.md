@@ -1,27 +1,7 @@
-# FH6 YouTube — oyun içi kontroller (0.4.2 deneysel)
+# Oyun içi kontrol paneli
 
-Oyunu aç. **Ctrl+Alt+Y** ile YouTube panelini açıp kapat. Bağlantıyı yapıştır, **Aç** düğmesine bas. Oynat, Duraklat, Ses, Ses dili ve Altyazı kontrolleri aynı panelde bulunur. Duraklatınca navigasyon görünür; ayrı bir navigasyona dön düğmesi yoktur. Panelde FPS/aktarım/doku sayaçları gösterilmez. Ayrı oynatıcı penceresi açmak veya sekme paylaşmak gerekmez. Panel açıkken klavye ve fare girişleri oyun kontrollerinden ayrılır; panel kapatılınca geri verilir.
+0.7.0 sürümünde Ctrl+Alt+Y paneli kaldırıldı. Oynatma, ses, kalite, altyazı ve dil kontrolleri tarayıcıdaki oynatıcıdan kullanılır. Oyun eklentisi klavye veya fare girişlerini yakalamaz.
 
-**Ses dili:** Video yüklendikten sonra sunulan ses parçaları listelenir. Çok dilli videolarda menüden seçim yapılabilir; ek ses parçası sunmayan videolarda menü pasiftir. Ses parçası seçimi mevcut YouTube oynatıcısının sunduğu, genel iframe API'sinde belgelenmeyen işlevleri koşullu kullanır. YouTube bu işlevleri değiştirirse menü kullanılamayabilir; olmayan diller uydurulmaz. Gerçek bir çok dilli videoda 25 dilin listelenmesi ve parça değişikliği onayı sessiz bir testte doğrulandı.
+Güncel kullanım ve kurulum: [BROWSER.md](BROWSER.md), [README.md](README.md).
 
-**Altyazı:** Ses dili menüsünün altındaki düğme, YouTube oynatıcısının altyazısını açar veya kapatır. Düğme gerçek duruma göre “Altyazıyı aç” / “Altyazıyı kapat” gösterir; seçenek yokken pasiftir. YouTube'un seçili altyazı dili korunur. Bu özellik hesap girişi gerektirmez. YouTube arayüzü değişirse kontrolün uyarlanması gerekebilir.
-
-**Hesap ve reklam:** Bu uygulama Chrome/Edge hesabını veya çerezlerini aktarmıyor; hesap giriş arayüzü yok. Oynatıcı kendi ayrı profilini kullanır. YouTube'un gömülü video reklamları çıkabilir; uygulama reklam engellemez. [YouTube reklam açıklaması](https://support.google.com/youtube/answer/132596?hl=tr).
-
-YouTube motoru oyunla birlikte görünmeden başlar ve oyun kapandığında kapanır. Bu bir web motoru içerir ve arka planda yardımcı süreçleri vardır; tamamen `.scs` dosyasından oluşan bir mod değildir. Video durunca veya oynatıcı bağlantısı kesilince görüntü katmanı şeffaflaşır; orijinal FH6 navigasyonu altta korunur.
-
-Bağlantıdaki başlangıç süreleri korunur: `?t=90`, `?t=1m30s`, `?start=90`, `#t=1m30s`. Süre YouTube'un resmi `loadVideoById({videoId,startSeconds})` çağrısına gönderilir. YouTube videoyu en yakın anahtar kareden başlatabilir. Canlı yayınlarda zaman davranışı YouTube'a bağlıdır.
-
-FPS, video zamanlamasına göre ölçülüp ayarlanır; sabit 10 FPS sınırı yoktur. Görünen hız oyun FPS'i ve sistem kapasitesiyle sınırlıdır.
-
-## 0.3'ten güncelleme
-
-Ana klasördeki `Install.cmd` tarayıcı aktarımını kurar. Dahili oynatıcıya teknik olarak geçmek için oyun kapalıyken `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/update-ingame.ps1` çalıştırılır. Bu işlem hazırlanmış `dist/ingame-0.4.2` paketini gerektirir. Tarayıcıya dönmek için `Install.cmd` yeniden çalıştırılır. `FH6Player.ini` oynatıcı konumunu saklar.
-
-## Görüntü düzeltmesi ve doğrulama
-
-0.3'te `UpdateSubresource1` yolu izlenmiyordu. Ayrı gerçek DirectX testinde bu yolun işaret dokusunu kaçırdığı yeniden üretildi; 0.4'te düzeltildi. `CopySubresourceRegion1` ve `Present1` yolları da desteklenir. Eklenti oyun günlüğüne `FH6 0.4` önekiyle doku, çizim ve yazma sayılarını kaydeder.
-
-Testler ayrı süreçler ve ayrı iletişim kanalları kullanır; açık ETS2 oturumuna bağlanmaz. Panel görünmeyen bir DirectX penceresinde çizilip gerçek piksel çıktısı kontrol edilir. Link süresinin YouTube API çağrısına ulaşması ayrıca test edilir. Oyun içindeki son görsel doğrulama ve ETS2'nin gerçek giriş sistemiyle panel kontrolü kullanıcı oturumunda yapılmalıdır.
-
-Başvuru: [YouTube iframe API](https://developers.google.com/youtube/iframe_api_reference), [DirectX UpdateSubresource1](https://learn.microsoft.com/en-us/windows/win32/api/d3d11_1/nf-d3d11_1-id3d11devicecontext1-updatesubresource1), [Dear ImGui](https://github.com/ocornut/imgui/tree/v1.93.0).
+Eski dahili YouTube oynatıcı kaynakları geçmiş uyumluluk çalışmaları için depoda bulunur; güncel kurulum tarayıcı aktarımını kullanır. Eski `dist/ingame-0.4.2` paketi yeni panel içermeyen DLL ile oyun içi kontroller sağlamaz.

@@ -9,6 +9,14 @@ onmessage=event=>{
   if(msg.type==='start')void pump(msg).catch(error=>postMessage({error:error.message}));
 };
 function validCrop(c){return c&&['x','y','w','h'].every(k=>Number.isFinite(c[k]))&&c.x>=0&&c.y>=0&&c.w>0&&c.h>0&&c.x+c.w<=1.002&&c.y+c.h<=1.002;}
+function sourceRect(frame,crop){
+  // Chromium can letterbox a tab into the capture track's fixed frame size.
+  // Map CSS viewport coordinates into the CONTENT rectangle, not the padding.
+  const fw=frame.displayWidth,fh=frame.displayHeight;
+  const vw=crop.viewportWidth||fw,vh=crop.viewportHeight||fh;
+  const scale=Math.min(fw/vw,fh/vh),cw=vw*scale,ch=vh*scale;
+  return [(fw-cw)/2+crop.x*cw,(fh-ch)/2+crop.y*ch,Math.min(crop.w*cw,cw*(1-crop.x)),Math.min(crop.h*ch,ch*(1-crop.y))];
+}
 async function pump({readable,base,token,session}){
   const reader=readable.getReader(),canvas=new OffscreenCanvas(1024,512);
   // Keep scaling on the GPU. Software drawImage on a captured high-resolution
@@ -20,7 +28,7 @@ async function pump({readable,base,token,session}){
     while(pending&&!failed){
       const {frame,frameCrop,frameEpoch,frameSerial}=pending;pending=null;
       try{
-        const sx=frameCrop.x*frame.displayWidth,sy=frameCrop.y*frame.displayHeight,sw=Math.min(frameCrop.w*frame.displayWidth,frame.displayWidth-sx),sh=Math.min(frameCrop.h*frame.displayHeight,frame.displayHeight-sy);
+        const [sx,sy,sw,sh]=sourceRect(frame,frameCrop);
         const scale=Math.min(1024/sw,512/sh),w=sw*scale,h=sh*scale;
         ctx.fillStyle='#000';ctx.fillRect(0,0,1024,512);ctx.drawImage(frame,sx,sy,sw,sh,(1024-w)/2,(512-h)/2,w,h);
         if(nativeCopy){

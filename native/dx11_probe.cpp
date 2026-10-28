@@ -48,10 +48,10 @@ static int reloadProbe(ID3D11Device* device,ID3D11DeviceContext* ctx,IDXGISwapCh
   return failures?1:0;
 }
 int main(int argc,char **argv) {
-  bool stream=false,single=false,panel=false,reload=false;
-  for(int i=1;i<argc;++i){if(!strcmp(argv[i],"--stream"))stream=true;if(!strcmp(argv[i],"--single"))single=true;if(!strcmp(argv[i],"--panel"))panel=true;}
+  bool stream=false,single=false,noUi=false,reload=false;
+  for(int i=1;i<argc;++i){if(!strcmp(argv[i],"--stream"))stream=true;if(!strcmp(argv[i],"--single"))single=true;if(!strcmp(argv[i],"--no-ui"))noUi=true;}
   for(int i=1;i<argc;++i)if(!strcmp(argv[i],"--reload"))reload=true;
-  if(panel)SetEnvironmentVariableW(L"FH6_TEST_PANEL",L"1");
+
 #ifndef FH6_STANDALONE
   (void)argc;
 #endif
@@ -71,13 +71,13 @@ int main(int argc,char **argv) {
   WNDCLASSW wc{}; wc.lpfnWndProc=DefWindowProcW; wc.hInstance=GetModuleHandleW(nullptr); wc.lpszClassName=L"FH6HiddenProbe";
   RegisterClassW(&wc);
   HWND window=CreateWindowW(wc.lpszClassName,L"FH6 isolated DX11 test",WS_OVERLAPPED,0,0,64,64,nullptr,nullptr,wc.hInstance,nullptr);
-  if(panel)SetWindowPos(window,nullptr,0,0,820,560,SWP_NOZORDER|SWP_NOACTIVATE);
+  if(noUi)SetWindowPos(window,nullptr,0,0,820,560,SWP_NOZORDER|SWP_NOACTIVATE);
   DXGI_SWAP_CHAIN_DESC sd{}; sd.BufferDesc.Width=64; sd.BufferDesc.Height=64; sd.BufferDesc.Format=DXGI_FORMAT_R8G8B8A8_UNORM;
   sd.SampleDesc.Count=1; sd.BufferUsage=DXGI_USAGE_RENDER_TARGET_OUTPUT; sd.BufferCount=1; sd.OutputWindow=window; sd.Windowed=TRUE;
-  if(panel){sd.BufferDesc.Width=800;sd.BufferDesc.Height=520;}
+  if(noUi){sd.BufferDesc.Width=800;sd.BufferDesc.Height=520;}
   ComPtr<ID3D11Device> device; ComPtr<ID3D11DeviceContext> ctx; ComPtr<IDXGISwapChain> swap;
   if (!check(D3D11CreateDeviceAndSwapChain(nullptr,D3D_DRIVER_TYPE_HARDWARE,nullptr,single?D3D11_CREATE_DEVICE_SINGLETHREADED:0,nullptr,0,D3D11_SDK_VERSION,&sd,&swap,&device,nullptr,&ctx),"device")) return 2;
-  if(panel){
+  if(noUi){
     ComPtr<ID3D11Texture2D> back,read;ComPtr<ID3D11RenderTargetView>view;
     swap->GetBuffer(0,IID_PPV_ARGS(&back));device->CreateRenderTargetView(back.Get(),nullptr,&view);
     const float black[4]={0,0,0,1};
@@ -88,8 +88,8 @@ int main(int argc,char **argv) {
     unsigned nonblack=0;std::vector<unsigned char> pixels(size_t(d.Width)*d.Height*4);
     for(UINT y=0;y<d.Height;++y)for(UINT x=0;x<d.Width;++x){auto p=static_cast<unsigned char*>(m.pData)+size_t(y)*m.RowPitch+x*4;auto q=pixels.data()+(size_t(y)*d.Width+x)*4;q[0]=p[2];q[1]=p[1];q[2]=p[0];q[3]=255;if(p[0]||p[1]||p[2])++nonblack;}
     ctx->Unmap(read.Get(),0);BITMAPFILEHEADER f{};f.bfType=0x4d42;f.bfOffBits=sizeof(f)+sizeof(BITMAPINFOHEADER);f.bfSize=f.bfOffBits+DWORD(pixels.size());BITMAPINFOHEADER b{};b.biSize=sizeof(b);b.biWidth=LONG(d.Width);b.biHeight=-LONG(d.Height);b.biPlanes=1;b.biBitCount=32;
-    FILE*file=nullptr;fopen_s(&file,"panel-test.bmp","wb");if(file){fwrite(&f,sizeof(f),1,file);fwrite(&b,sizeof(b),1,file);fwrite(pixels.data(),pixels.size(),1,file);fclose(file);}
-    std::printf("panel rendered-pixels=%u\n",nonblack);if(nonblack<10000)return 3;
+    FILE*file=nullptr;fopen_s(&file,"no-ui-test.bmp","wb");if(file){fwrite(&f,sizeof(f),1,file);fwrite(&b,sizeof(b),1,file);fwrite(pixels.data(),pixels.size(),1,file);fclose(file);}
+    std::printf("overlay pixels=%u\n",nonblack);if(nonblack!=0)return 3;
   }
   D3D11_TEXTURE2D_DESC td{}; td.Width=fh6::width; td.Height=fh6::height; td.MipLevels=1; td.ArraySize=1;
   td.Format=DXGI_FORMAT_B8G8R8A8_UNORM; td.SampleDesc.Count=1; td.Usage=D3D11_USAGE_DEFAULT; td.BindFlags=D3D11_BIND_SHADER_RESOURCE;

@@ -11,7 +11,7 @@ app.whenReady().then(async()=>{
  await win.loadURL('https://www.youtube.com/watch?v=iogcY_4xGjo').catch(error=>{if(error.errno!==-3&&error.code!=='ERR_ABORTED')throw error;});
  for(let attempt=0;attempt<18;attempt++){
   await delay(1000);
-  const state=await win.webContents.executeJavaScript(`(()=>{${source};return playerSnapshot();})()`);
+  const state=await win.webContents.executeJavaScript(`(()=>{${source};return {...pageVideo('select'),videoId:document.getElementById('movie_player')?.getVideoData?.()?.video_id};})()`);
   if(state.videoId!=='iogcY_4xGjo'||!state.crop)continue;
   const cc=await win.webContents.executeJavaScript(inspectCaptions(state.videoId));
   await win.webContents.executeJavaScript(setCaptions(state.videoId,!cc.enabled));await delay(600);

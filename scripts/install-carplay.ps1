@@ -6,7 +6,7 @@ param(
 )
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
-if([string]::IsNullOrWhiteSpace($PackagePath)){$PackagePath=Join-Path $root 'dist\browser-0.5.0'}
+if([string]::IsNullOrWhiteSpace($PackagePath)){$PackagePath=Join-Path $root 'dist\browser-0.7.0'}
 if([string]::IsNullOrWhiteSpace($ManifestPath)){$ManifestPath=Join-Path $root 'dist\standalone\Installation.json'}
 try{
  if(Get-Process -Name eurotrucks2 -ErrorAction SilentlyContinue){throw 'Once ETS2 oyununu tamamen kapat. Acik oyuna degisiklik yapilmadi.'}
@@ -33,8 +33,8 @@ try{
  Write-Host ''
  Write-Host 'CarPlay kurulumu tamamlandi.' -ForegroundColor Green
  Write-Host 'Tarayici uzantisi klasoru:' (Join-Path $PackagePath 'Extension')
- Write-Host 'YouTube videosunu acip uzantidan Kabine aktar sec.'
- Write-Host 'Oyunda Ctrl+Alt+Y ile kontrolleri acabilirsin.'
+ Write-Host 'Tarayicida video acip ETS2 Video Aktarimi uzantisindan Kabine aktar sec.'
+ Write-Host 'Video bulunamazsa Alan sec ve aktar kullan. Kontroller tarayicidadir.'
  Write-Host 'Atolye kopyasi etkinse yerel FH6YouTube.scs kopyasini devre disi birak.'
  exit 0
 }catch{

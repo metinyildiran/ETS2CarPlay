@@ -6,7 +6,8 @@ function cleanState(value){
   if(!value||typeof value!=='object')throw new Error('Invalid state');
   const id=videoId(value.videoId);
   const tracks=(Array.isArray(value.audio?.tracks)?value.audio.tracks:[]).slice(0,64).filter(t=>typeof t?.id==='string'&&typeof t?.label==='string').map(t=>({id:t.id.slice(0,1024),label:t.label.replace(/[\r\n\t]/g,' ').slice(0,60)}));
-  return {videoId:id,playing:value.playing===true&&!!id,applied:Number.isSafeInteger(value.applied)?value.applied:-1,
+  const sourceId=typeof value.sourceId==='string'&&/^(video-\d+|region)$/.test(value.sourceId)?value.sourceId:'';
+  return {videoId:id,sourceId,playing:value.playing===true&&!!(sourceId||id),applied:Number.isSafeInteger(value.applied)?value.applied:-1,
     audio:{videoId:id,supported:tracks.length>0,selected:String(value.audio?.selected||'').slice(0,1024),tracks},
     captions:{videoId:id,available:value.captions?.available===true,enabled:value.captions?.enabled===true}};
 }
@@ -14,7 +15,7 @@ function createBrowserBridge({token,onFrame,onStatus=()=>{},onAudio=()=>{},onCap
   if(!/^[a-f0-9]{64}$/.test(token))throw new Error('Invalid pairing token');
   let session='',sessionOrigin='',lastState=0,active=false,serial=0,barrier=0,queue=[];
   const clear=()=>{active=false;onFrame(Buffer.alloc(BYTES));};
-  const reset=()=>{clear();session='';queue=[];onAudio({tracks:[]});onCaptions({});onStatus('YouTube sekmesinde Kabine aktar düğmesine bas.');};
+  const reset=()=>{clear();session='';queue=[];onAudio({tracks:[]});onCaptions({});onStatus('Video sekmesinde Kabine aktar düğmesine bas.');};
   const server=http.createServer(async(req,res)=>{
     const origin=req.headers.origin||'';
     if(req.headers.host!==`127.0.0.1:${server.address().port}`||(origin&&!/^chrome-extension:\/\/[a-p]{32}$/.test(origin))){res.writeHead(403).end();return;}
@@ -57,7 +58,7 @@ function createBrowserBridge({token,onFrame,onStatus=()=>{},onAudio=()=>{},onCap
   const timer=setInterval(()=>{if(session&&Date.now()-lastState>timeout)reset();},Math.min(timeout,500));timer.unref();
   return {server,listen:()=>new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,'127.0.0.1',resolve);}),
     command(cmd){
-      if(!session){onStatus('Önce YouTube sekmesinde Kabine aktar düğmesine bas.');return;}
+      if(!session){onStatus('Önce Video sekmesinde Kabine aktar düğmesine bas.');return;}
       const next={...cmd,serial:++serial};
       if(['load','pause','stop'].includes(cmd.type)){barrier=serial;clear();}
       if(queue.length>=32){reset();return;}queue.push(next);

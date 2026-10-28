@@ -74,6 +74,7 @@ try{
   $change.Action.Source=$change.Source;$change.Action.After=$hash
  }
  $manifest.Version=$packageVersion
+ if($packageInfo.fh6NativeRevision -match '^\d+\.\d+\.\d+$'){$manifest | Add-Member -NotePropertyName NativeRevision -NotePropertyValue $packageInfo.fh6NativeRevision -Force}
  $manifest.PSObject.Properties.Remove('NativeSuspended')
  $manifest|ConvertTo-Json -Depth 6|Set-Content -LiteralPath $ManifestPath -Encoding UTF8
 }catch{

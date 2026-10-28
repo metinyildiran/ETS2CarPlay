@@ -17,7 +17,7 @@ extern "C" {
 #include <memory>
 #include <algorithm>
 #include <cstdio>
-#include "game_panel.hpp"
+#include "helper_runtime.hpp"
 #pragma comment(lib,"d3d11.lib")
 #pragma comment(lib,"user32.lib")
 using Microsoft::WRL::ComPtr;
@@ -39,7 +39,6 @@ std::thread receiver;
 std::atomic<bool> receiverDone{true};
 std::vector<void*> hooks;
 bool testProcess=false;
-bool testPanel=false;
 std::wstring pipeName=L"\\\\.\\pipe\\FH6CarPlay-v4";
 std::atomic<unsigned> candidateCount{0},presentCount{0},updateCount{0};
 scs_log_t gameLog=nullptr;
@@ -154,7 +153,6 @@ void on_present(IDXGISwapChain*s){
   if(!running||internal)return;
   try{
     paint(s);unsigned targets=0;{std::lock_guard lock(resources);for(auto &k:known)if(k.desc.BindFlags&D3D11_BIND_SHADER_RESOURCE)++targets;}
-    if(!testProcess||testPanel)fh6panel::draw(s,targets,uploaded.load());
     if(gameLog && ++presentCount%1800==1){char line[240];std::snprintf(line,sizeof(line),"FH6 0.4: presents=%u candidates=%u update1=%u targets=%u uploaded=%u",presentCount.load(),candidateCount.load(),updateCount.load(),targets,uploaded.load());gameLog(SCS_LOG_TYPE_message,line);}
   }catch(...){}
 }
@@ -183,12 +181,11 @@ template<int N> bool hook_context(ID3D11DeviceContext *c){auto v=*reinterpret_ca
   bool ok=hook(v[14],reinterpret_cast<void*>(map<N>),reinterpret_cast<void**>(&Context<N>::map)) && hook(v[15],reinterpret_cast<void*>(unmap<N>),reinterpret_cast<void**>(&Context<N>::unmap)) && hook(v[46],reinterpret_cast<void*>(region<N>),reinterpret_cast<void**>(&Context<N>::region)) && hook(v[47],reinterpret_cast<void*>(copy<N>),reinterpret_cast<void**>(&Context<N>::copy)) && hook(v[48],reinterpret_cast<void*>(update<N>),reinterpret_cast<void**>(&Context<N>::update));
   ComPtr<ID3D11DeviceContext1> c1;if(ok && SUCCEEDED(c->QueryInterface(IID_PPV_ARGS(&c1)))){auto v1=*reinterpret_cast<void***>(c1.Get());ok=hook(v1[115],reinterpret_cast<void*>(region1<N>),reinterpret_cast<void**>(&Context<N>::region1))&&hook(v1[116],reinterpret_cast<void*>(update1<N>),reinterpret_cast<void**>(&Context<N>::update1));}return ok;
 }
-void stop(){running=false;for(auto h:hooks)MH_DisableHook(h);while(calls.load())Sleep(1);fh6panel::stop();if(receiver.joinable()){while(!receiverDone){CancelSynchronousIo(receiver.native_handle());auto p=CreateFileW(pipeName.c_str(),GENERIC_READ|GENERIC_WRITE,0,nullptr,OPEN_EXISTING,0,nullptr);if(p!=INVALID_HANDLE_VALUE)CloseHandle(p);Sleep(10);}receiver.join();}for(auto h:hooks)MH_RemoveHook(h);hooks.clear();MH_Uninitialize();known.clear();mapped.clear();latest.reset();gameLog=nullptr;}
+void stop(){running=false;for(auto h:hooks)MH_DisableHook(h);while(calls.load())Sleep(1);ets2helper::stop();if(receiver.joinable()){while(!receiverDone){CancelSynchronousIo(receiver.native_handle());auto p=CreateFileW(pipeName.c_str(),GENERIC_READ|GENERIC_WRITE,0,nullptr,OPEN_EXISTING,0,nullptr);if(p!=INVALID_HANDLE_VALUE)CloseHandle(p);Sleep(10);}receiver.join();}for(auto h:hooks)MH_RemoveHook(h);hooks.clear();MH_Uninitialize();known.clear();mapped.clear();latest.reset();gameLog=nullptr;}
 bool start(){
   if(running)return true;
   wchar_t exe[MAX_PATH]{};GetModuleFileNameW(nullptr,exe,MAX_PATH);auto name=wcsrchr(exe,L'\\');testProcess=name && !_wcsicmp(name+1,L"standalone_probe.exe");
   if(testProcess)pipeName=L"\\\\.\\pipe\\FH6CarPlay-test";
-  wchar_t testFlag[4]{};testPanel=testProcess&&GetEnvironmentVariableW(L"FH6_TEST_PANEL",testFlag,4)>0&&testFlag[0]==L'1';
   WNDCLASSW wc{};wc.lpfnWndProc=DefWindowProcW;wc.hInstance=GetModuleHandleW(nullptr);wc.lpszClassName=L"FH6HookBootstrap";RegisterClassW(&wc);
   auto window=CreateWindowW(wc.lpszClassName,L"",WS_OVERLAPPED,0,0,64,64,nullptr,nullptr,wc.hInstance,nullptr);
   DXGI_SWAP_CHAIN_DESC d{};d.BufferDesc.Width=64;d.BufferDesc.Height=64;d.BufferDesc.Format=DXGI_FORMAT_R8G8B8A8_UNORM;d.SampleDesc.Count=1;d.BufferUsage=DXGI_USAGE_RENDER_TARGET_OUTPUT;d.BufferCount=1;d.OutputWindow=window;d.Windowed=TRUE;
@@ -208,6 +205,6 @@ bool start(){
 SCSAPI_RESULT scs_telemetry_init(const scs_u32_t version,const scs_telemetry_init_params_t *const params){
   if(version!=SCS_TELEMETRY_VERSION_1_00 && version!=SCS_TELEMETRY_VERSION_1_01)return SCS_RESULT_unsupported;
   if(params)gameLog=static_cast<const scs_telemetry_init_params_v100_t*>(params)->common.log;
-  try{bool ok=start();if(ok&&(!testProcess||testPanel))fh6panel::start(testProcess);if(gameLog)gameLog(ok?SCS_LOG_TYPE_message:SCS_LOG_TYPE_error,ok?"FH6 0.4: native player ready; Ctrl+Alt+Y opens controls.":"FH6 0.4: initialization failed");return ok?SCS_RESULT_ok:SCS_RESULT_generic_error;}catch(...){stop();return SCS_RESULT_generic_error;}
+  try{bool ok=start();if(ok&&!testProcess)ets2helper::start();if(gameLog)gameLog(ok?SCS_LOG_TYPE_message:SCS_LOG_TYPE_error,ok?"ETS2CarPlay 0.7.0: browser video bridge ready.":"ETS2CarPlay 0.7.0: initialization failed");return ok?SCS_RESULT_ok:SCS_RESULT_generic_error;}catch(...){stop();return SCS_RESULT_generic_error;}
 }
 SCSAPI_VOID scs_telemetry_shutdown(){stop();}

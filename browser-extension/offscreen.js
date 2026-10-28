@@ -31,17 +31,17 @@ async function begin(msg){
         const commands=await api(ctx,'/commands');
         for(const command of commands){
           if(['pause','stop','load'].includes(command.type))ctx.worker.postMessage({type:'state',playing:false,applied:ctx.applied});
-          const result=await chrome.runtime.sendMessage({to:'service',type:'command',tabId:ctx.tabId,command});
-          if(!result?.ok)await status(result?.message||'Oynatıcı komutu başarısız.');
+          // The bridge's initial sync serial is still used to reject stale frames.
+          // Playback and all other controls now belong to the browser player.
           ctx.applied=command.serial;
         }
         const result=await chrome.runtime.sendMessage({to:'service',type:'snapshot',tabId:ctx.tabId});
-        if(!result?.state)throw new Error(result?.message||'YouTube sekmesine erişilemiyor.');
+        if(!result?.state)throw new Error(result?.message||'Video sekmesine erişilemiyor.');
         const state={...result.state,applied:ctx.applied};
         await api(ctx,'/state',{method:'POST',body:state});
         if(current!==ctx)return;
         ctx.worker.postMessage({type:'state',playing:state.playing,applied:ctx.applied,crop:state.crop});
-        await status(!state.crop?'Video alanını tamamen görünür tut; sayfayı yukarı kaydır.':state.playing?'Aktarım açık. Kalite, altyazı ve dil YouTube’dan değiştirilebilir.':'Video duraklatıldı; navigasyon gösteriliyor.');
+        await status(state.reason||(!state.crop?'Video alanını tamamen görünür tut.':state.playing?'Aktarım açık. Kontrolleri tarayıcıdan kullan.':'Video duraklatıldı; navigasyon gösteriliyor.'));
         ctx.poll=setTimeout(poll,200);
       }catch(error){if(current===ctx)await finish(error.message);}
     }
