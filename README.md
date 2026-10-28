@@ -7,12 +7,12 @@ Tarayıcı videolarını Euro Truck Simulator 2 kabinindeki GPS ekranlarına akt
 ## Kurulum
 
 1. ZIP'i kalıcı bir klasöre çıkarın. Kurulumdan sonra bu klasörü silmeyin veya taşımayın.
-2. ETS2 kapalıyken **Install.cmd** dosyasını çalıştırın ve istenen oyun/belgeler klasörlerini belirtin.
+2. ETS2 kapalıyken **Install.cmd** dosyasını çalıştırın. Oyun klasörü Steam kütüphanelerinden, oyun belgeleri Windows'un Belgeler konumundan otomatik bulunur. Birden fazla kurulum varsa listeden seçim yapılır.
 3. Chrome'da `chrome://extensions` veya Edge'de `edge://extensions` sayfasını açın. Geliştirici modunu etkinleştirip **Paketlenmemiş öğe yükle** ile paketteki `dist/browser-0.7.0/Extension` klasörünü seçin.
-4. Oyunun Mod Yöneticisinde yerel CarPlay ekran modunu veya Atölye kopyasını etkinleştirin; ikisini birlikte kullanmayın.
+4. [Steam Atölye ekran moduna](https://steamcommunity.com/sharedfiles/filedetails/?id=3827251497) abone olun ve oyunun Mod Yöneticisinde etkinleştirin. Eski yerel CarPlay ekran modu varsa devre dışı bırakın.
 5. Tarayıcıda video açıp uzantıdan **Kabine aktar** seçin. Video bulunamazsa **Alan seç ve aktar** ile alanını işaretleyin.
 
-Atölye aboneliği yalnızca kabin ekranı bileşenini kurar. Video aktarımı için ZIP içindeki oyun eklentisi, yardımcı program ve tarayıcı uzantısı da gereklidir. GitHub'ın kaynak kodu ZIP'i hazır kurulum paketi değildir.
+Kabin ekranı modu yalnızca Steam Atölye üzerinden kurulur; GitHub ZIP'inde bulunmaz. Video aktarımı için ZIP içindeki oyun eklentisi, yardımcı program ve tarayıcı uzantısı da gereklidir. GitHub'ın kaynak kodu ZIP'i hazır kurulum paketi değildir.
 
 ## Kullanım
 

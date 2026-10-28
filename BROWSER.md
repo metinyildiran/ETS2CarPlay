@@ -6,7 +6,7 @@
 
 1. ETS2 kapalıyken proje kökündeki `Install.cmd` dosyasını çalıştırın. Hazır yerel paket gerekir; geliştirme adımları [README](README.md) içinde.
 2. Chrome'da `chrome://extensions`, Edge'de `edge://extensions` açın. Geliştirici modunda **Paketlenmemiş öğe yükle** ile `dist/browser-0.7.0/Extension` klasörünü seçin.
-3. Oyunda CarPlay ekran modunu etkinleştirin. Yerel mod ve Atölye kopyasını aynı anda etkinleştirmeyin.
+3. Steam Atölye ekran moduna abone olup oyunda etkinleştirin. GitHub ZIP'i ekran modunu içermez. Eski yerel ekran modu varsa devre dışı bırakın.
 4. Tarayıcıda videoyu açıp oynatın. Eklentiden **Kabine aktar** seçin. Varsayılan olarak görünür ve oynayan en büyük video seçilir; birden fazla video varsa listeden seçim yapabilirsiniz.
 5. Video bulunamazsa **Alan seç ve aktar** düğmesine basın, sayfada video bölgesini sürükleyerek işaretleyin. Esc ile iptal edebilirsiniz.
 

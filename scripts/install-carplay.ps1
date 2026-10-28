@@ -10,7 +10,7 @@ if([string]::IsNullOrWhiteSpace($PackagePath)){$PackagePath=Join-Path $root 'dis
 if([string]::IsNullOrWhiteSpace($ManifestPath)){$ManifestPath=Join-Path $root 'dist\standalone\Installation.json'}
 try{
  if(Get-Process -Name eurotrucks2 -ErrorAction SilentlyContinue){throw 'Once ETS2 oyununu tamamen kapat. Acik oyuna degisiklik yapilmadi.'}
- foreach($relative in @('FH6Standalone.dll','FH6YouTubeNavigation.scs','Player\electron.exe','Player\resources\app\main.cjs','Player\resources\app\package.json')){
+ foreach($relative in @('FH6Standalone.dll','Player\electron.exe','Player\resources\app\main.cjs','Player\resources\app\package.json')){
   if(!(Test-Path -LiteralPath (Join-Path $PackagePath $relative))){throw "Hazir kurulum paketi eksik: $PackagePath. README.md dosyasindaki derleme ve paketleme adimlarini tamamla."}
  }
  $packageInfo=Get-Content -LiteralPath (Join-Path $PackagePath 'Player\resources\app\package.json') -Raw | ConvertFrom-Json
@@ -40,17 +40,17 @@ try{
   }catch{foreach($file in $created){Remove-Item -LiteralPath $file};throw}
  }
  if(!(Test-Path -LiteralPath $ManifestPath)){
+  . (Join-Path $PSScriptRoot 'find-ets2.ps1')
   if([string]::IsNullOrWhiteSpace($GamePath)){
-   $defaultGame='D:\SteamLibrary\steamapps\common\Euro Truck Simulator 2'
-   $GamePath=Read-Host "ETS2 klasoru (varsayilan: $defaultGame)"
-   if([string]::IsNullOrWhiteSpace($GamePath)){$GamePath=$defaultGame}
+   $GamePath=Select-CarPlayGamePath @(Find-CarPlayGamePaths)
   }
   if([string]::IsNullOrWhiteSpace($DocumentsPath)){
-   $defaultDocuments=Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'Euro Truck Simulator 2'
-   $DocumentsPath=Read-Host "ETS2 belgeler klasoru (varsayilan: $defaultDocuments)"
-   if([string]::IsNullOrWhiteSpace($DocumentsPath)){$DocumentsPath=$defaultDocuments}
+   $DocumentsPath=Find-CarPlayDocumentsPath
+   if(!$DocumentsPath){throw 'ETS2 belgeler klasoru bulunamadi. Oyunu bir kez acip kapatin veya kurucuyu -DocumentsPath ile calistirin.'}
   }
   $GamePath=$GamePath.Trim().Trim('"');$DocumentsPath=$DocumentsPath.Trim().Trim('"')
+  Write-Host 'ETS2 bulundu:' $GamePath
+  Write-Host 'Oyun belgeleri bulundu:' $DocumentsPath
   . (Join-Path $PSScriptRoot 'player-config.ps1')
   # Validate before the base installer touches the DLL or dashboard mod.
   $null=Get-CarPlayExistingPlayerConfig (Join-Path $GamePath 'bin\win_x64\plugins\FH6Player.ini')
@@ -62,7 +62,11 @@ try{
  Write-Host 'Tarayici uzantisi klasoru:' (Join-Path $PackagePath 'Extension')
  Write-Host 'Tarayicida video acip ETS2 Video Aktarimi uzantisindan Kabine aktar sec.'
  Write-Host 'Video bulunamazsa Alan sec ve aktar kullan. Kontroller tarayicidadir.'
- Write-Host 'Atolye kopyasi etkinse yerel FH6YouTube.scs kopyasini devre disi birak.'
+ if($packageInfo.fh6WorkshopOnly){
+  Write-Host 'Kabin ekranlari icin Steam Atolye ogesine abone ol ve Mod Yoneticisinde etkinlestir:'
+  Write-Host 'https://steamcommunity.com/sharedfiles/filedetails/?id=3827251497'
+  Write-Host 'Eski yerel CarPlay ekran modu varsa Mod Yoneticisinde devre disi birak.'
+ }else{Write-Host 'Atolye kopyasi etkinse yerel ekran modu kopyasini devre disi birak.'}
  exit 0
 }catch{
  Write-Host "Kurulum tamamlanamadi: $($_.Exception.Message)" -ForegroundColor Red

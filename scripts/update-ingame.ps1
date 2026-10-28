@@ -37,9 +37,12 @@ if(!$configAction){
 }
 $dllAction=$manifest.Actions | Where-Object {$_.Target -eq (Join-Path $bin 'plugins\FH6Standalone.dll')}
 $modAction=$manifest.Actions | Where-Object {$_.Target -like '*\mod\FH6YouTube.scs'}
-if(!$dllAction -or !$modAction){throw 'Onceki FH6 kurulum kaydi eksik.'}
+$packageInfo=Get-Content -LiteralPath "$PackagePath\Player\resources\app\package.json" -Raw | ConvertFrom-Json
+if(!$dllAction -or (!$modAction -and !$packageInfo.fh6WorkshopOnly)){throw 'Onceki FH6 kurulum kaydi eksik.'}
 $player=Join-Path $PackagePath 'Player\electron.exe'
-foreach($path in @("$PackagePath\FH6Standalone.dll","$PackagePath\FH6YouTubeNavigation.scs",$player,"$PackagePath\Player\resources\app\main.cjs")){if(!(Test-Path -LiteralPath $path)){throw "Eksik paket: $path"}}
+$required=@("$PackagePath\FH6Standalone.dll",$player,"$PackagePath\Player\resources\app\main.cjs")
+if(!$packageInfo.fh6WorkshopOnly){$required+="$PackagePath\FH6YouTubeNavigation.scs"}
+foreach($path in $required){if(!(Test-Path -LiteralPath $path)){throw "Eksik paket: $path"}}
 $packageInfo=Get-Content -LiteralPath "$PackagePath\Player\resources\app\package.json" -Raw | ConvertFrom-Json
 if($packageInfo.version -notmatch '^\d+\.\d+\.\d+$'){throw 'Gecersiz paket surumu.'}
 $packageVersion=$packageInfo.version+$(if($packageInfo.fh6Mode -eq 'browser'){'-browser-experimental'}else{'-experimental'})
@@ -56,9 +59,9 @@ if(!$configAction){
 }
 $changes=@(
  [pscustomobject]@{Action=$dllAction;Source="$PackagePath\FH6Standalone.dll";Backup=$null},
- [pscustomobject]@{Action=$modAction;Source="$PackagePath\FH6YouTubeNavigation.scs";Backup=$null},
  [pscustomobject]@{Action=$configAction;Source=$configSource;Backup=$null}
 )
+if(!$packageInfo.fh6WorkshopOnly){$changes+=[pscustomobject]@{Action=$modAction;Source="$PackagePath\FH6YouTubeNavigation.scs";Backup=$null}}
 foreach($change in $changes){
  $current=if(Test-Path -LiteralPath $change.Action.Target){(Get-FileHash -LiteralPath $change.Action.Target).Hash}else{$null}
  if($current -ne $observed[$change.Action.Target]){throw 'Hedef dosya yedekleme oncesinde degisti.'}

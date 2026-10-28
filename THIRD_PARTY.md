@@ -11,4 +11,4 @@ Only source files needed by this project and their license notices are included.
 
 Electron is installed through desktop/package-lock.json; its runtime is not vendored. Extracted ETS2 game assets and the SCS extractor are not included.
 
-The separately published Windows release ZIP includes the Electron runtime with its LICENSE and LICENSES.chromium.html, the native plugin license notices, and the generated dashboard mod. It excludes extracted source archives, development tools, local settings and pairing keys.
+The separately published Windows release ZIP includes the Electron runtime with its LICENSE and LICENSES.chromium.html and the native plugin license notices. The dashboard mod is distributed through Steam Workshop. The ZIP excludes dashboard files, extracted source archives, development tools, local settings and pairing keys.

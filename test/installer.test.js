@@ -156,3 +156,19 @@ test('Installer refuses mismatched pairing keys without modifying them',{skip:pr
  assert.equal(JSON.parse(fs.readFileSync(a)).token,'a'.repeat(64));assert.equal(JSON.parse(fs.readFileSync(b)).token,'b'.repeat(64));
  assert.equal(fs.existsSync(f.dll),false);
 });
+
+test('Workshop-only release installs and repairs without a dashboard archive or changing local mods',{skip:process.platform!=='win32'},()=>{
+ const f=fixture();fs.unlinkSync(f.manifest);fs.unlinkSync(path.join(f.pkg,'FH6YouTubeNavigation.scs'));
+ const info=path.join(f.pkg,'Player/resources/app/package.json');
+ fs.writeFileSync(info,JSON.stringify({...JSON.parse(fs.readFileSync(info)),fh6WorkshopOnly:true}));
+ fs.mkdirSync(path.join(f.game,'bin/win_x64'),{recursive:true});fs.writeFileSync(path.join(f.game,'bin/win_x64/eurotrucks2.exe'),'test game');
+ const quote=s=>"'"+s.replaceAll("'","''")+"'";
+ for(let i=0;i<2;i++){
+  const r=spawnSync('powershell.exe',fixtureArgs(f,'install-carplay.ps1',` -GamePath ${quote(f.game)} -DocumentsPath ${quote(path.join(f.dir,'documents'))}`),{encoding:'utf8',windowsHide:true,env});
+  assert.equal(r.status,0,r.stdout+r.stderr);assert.match(r.stdout,/Steam Atolye/);
+  assert.equal(fs.readFileSync(f.mod,'utf8'),'old mod');
+  const record=JSON.parse(fs.readFileSync(f.manifest,'utf8').replace(/^\uFEFF/,''));
+  assert.equal(record.Actions.some(a=>a.Target===f.mod),false);
+  assert.equal(fs.readFileSync(f.dll,'utf8'),'test DLL bytes');
+ }
+});

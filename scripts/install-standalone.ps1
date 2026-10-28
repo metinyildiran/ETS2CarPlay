@@ -14,7 +14,10 @@ $bin = Join-Path $GamePath 'bin\win_x64'
 $mod = Join-Path $DocumentsPath 'mod'
 if (!(Test-Path -LiteralPath "$bin\eurotrucks2.exe")) { throw 'ETS2 oyun yolu bulunamadi.' }
 if (!(Test-Path -LiteralPath $DocumentsPath)) { throw 'ETS2 belgeler klasoru bulunamadi.' }
-foreach ($file in @('FH6Standalone.dll','FH6YouTubeNavigation.scs','Player\electron.exe','Player\resources\app\main.cjs')) {
+$packageInfo=Get-Content -LiteralPath (Join-Path $PackagePath 'Player\resources\app\package.json') -Raw | ConvertFrom-Json
+$required=@('FH6Standalone.dll','Player\electron.exe','Player\resources\app\main.cjs')
+if(!$packageInfo.fh6WorkshopOnly){$required+='FH6YouTubeNavigation.scs'}
+foreach ($file in $required) {
   if (!(Test-Path -LiteralPath (Join-Path $PackagePath $file))) { throw "Paket eksik: $file" }
 }
 if (Test-Path -LiteralPath $manifestPath) { throw 'Bu paket zaten kuruldu. Yeniden kurmak icin Install.cmd dosyasini calistir.' }
@@ -30,7 +33,7 @@ foreach ($file in @('dxgi.dll','d3d11.dll')) {
 $oldAddon = Join-Path $bin 'FH6CarPlay.addon64'
 if (Test-Path -LiteralPath $oldAddon) { $actions += [pscustomobject]@{Target=$oldAddon;Source=$null;Backup=$null;Before=$null;After=$null} }
 $actions += [pscustomobject]@{Target=(Join-Path $bin 'plugins\FH6Standalone.dll');Source=(Join-Path $PackagePath 'FH6Standalone.dll');Backup=$null;Before=$null;After=$null}
-$actions += [pscustomobject]@{Target=(Join-Path $mod 'FH6YouTube.scs');Source=(Join-Path $PackagePath 'FH6YouTubeNavigation.scs');Backup=$null;Before=$null;After=$null}
+if(!$packageInfo.fh6WorkshopOnly){$actions += [pscustomobject]@{Target=(Join-Path $mod 'FH6YouTube.scs');Source=(Join-Path $PackagePath 'FH6YouTubeNavigation.scs');Backup=$null;Before=$null;After=$null}}
 foreach ($action in $actions) {
   if (Test-Path -LiteralPath $action.Target) { $action.Before=(Get-FileHash -LiteralPath $action.Target -Algorithm SHA256).Hash }
   if ($action.Source) { $action.After=(Get-FileHash -LiteralPath $action.Source -Algorithm SHA256).Hash }
