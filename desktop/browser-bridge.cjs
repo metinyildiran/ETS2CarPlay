@@ -21,11 +21,16 @@ function createBrowserBridge({token,onFrame,onStatus=()=>{},onAudio=()=>{},onCap
     if(req.headers.host!==`127.0.0.1:${server.address().port}`||(origin&&!/^chrome-extension:\/\/[a-p]{32}$/.test(origin))){res.writeHead(403).end();return;}
     if(origin)res.setHeader('Access-Control-Allow-Origin',origin);
     res.setHeader('Vary','Origin');res.setHeader('Cache-Control','no-store');
-    if(req.method==='OPTIONS'){res.writeHead(204,{'Access-Control-Allow-Methods':'GET, POST','Access-Control-Allow-Headers':'Content-Type, X-FH6-Token, X-FH6-Session, X-FH6-Serial','Access-Control-Allow-Private-Network':'true'}).end();return;}
+    if(req.method==='OPTIONS'){res.writeHead(204,{'Access-Control-Allow-Methods':'GET, POST','Access-Control-Allow-Headers':'Content-Type, X-FH6-Token, X-FH6-Session, X-FH6-Serial','Access-Control-Allow-Private-Network':'true','Access-Control-Max-Age':'600'}).end();return;}
     const supplied=Buffer.from(String(req.headers['x-fh6-token']||'')),expected=Buffer.from(token);
     if(supplied.length!==expected.length||!timingSafeEqual(supplied,expected)){res.writeHead(403).end();return;}
     const json=value=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(value));};
     const read=async(max)=>{let n=0,chunks=[];for await(const b of req){n+=b.length;if(n>max)throw new Error('Too large');chunks.push(b);}return Buffer.concat(chunks);};
+    const readFrame=async()=>{
+      const frame=Buffer.allocUnsafe(BYTES);let at=0;
+      for await(const chunk of req){if(at+chunk.length>BYTES)throw new Error('Too large');chunk.copy(frame,at);at+=chunk.length;}
+      if(at!==BYTES)throw new Error('Frame size');return frame;
+    };
     try{
       if(req.url==='/connect'&&req.method==='POST'){
         await read(1024);
@@ -44,14 +49,14 @@ function createBrowserBridge({token,onFrame,onStatus=()=>{},onAudio=()=>{},onCap
         const diagnostics={sourceId:state.sourceId,playing:state.playing};
         for(const key of ['sourceFrames','sourceAt'])if(Number.isFinite(raw[key])&&raw[key]>=0)diagnostics[key]=raw[key];
         diagnostics.metrics={};
-        for(const key of ['received','prepared','sent','copyMs','sendMs','width','height','at'])if(Number.isFinite(raw.metrics?.[key])&&raw.metrics[key]>=0)diagnostics.metrics[key]=raw.metrics[key];
+        for(const key of ['received','prepared','sent','copyMs','sendMs','width','height','at','captureLevel','captureChanges','captureFailures','copyP95Ms','copyP99Ms','sendP95Ms','sendP99Ms','captureGapP95Ms','captureGapP99Ms','captureGapMaxMs','sendGapP95Ms','sendGapP99Ms','sendGapMaxMs','queueP95Ms','queueP99Ms','dropped'])if(Number.isFinite(raw.metrics?.[key])&&raw.metrics[key]>=0)diagnostics.metrics[key]=raw.metrics[key];
         onDiagnostics(diagnostics);
         if(!next&&active)clear();active=next;onAudio(state.audio);onCaptions(state.captions);
         onStatus(active?'Tarayıcıdaki video oynatılıyor.':'Video duraklatıldı veya görüntü bekleniyor.');res.writeHead(204).end();return;
       }
       if(req.url==='/frame'&&req.method==='POST'){
         if(Number(req.headers['content-length'])!==BYTES||req.headers['content-type']!=='application/octet-stream'){res.writeHead(400).end();return;}
-        const frameSerial=Number(req.headers['x-fh6-serial']),frame=await read(BYTES);
+        const frameSerial=Number(req.headers['x-fh6-serial']),frame=await readFrame();
         if(frame.length!==BYTES)throw new Error('Frame size');
         if(session===key&&active&&Number.isSafeInteger(frameSerial)&&frameSerial>=barrier&&Date.now()-lastState<timeout)onFrame(frame);
         res.writeHead(204).end();return;

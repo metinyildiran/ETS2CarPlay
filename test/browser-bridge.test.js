@@ -18,7 +18,7 @@ test('Browser bridge authenticates locally and blocks stale frames after pause o
  assert.equal((await request('/connect','POST',{})).status,409);
  assert.equal((await request('/frame','POST',Buffer.alloc(10))).status,400);
  await request('/state','POST',{videoId:id,playing:true,applied:serial});
- await request('/frame','POST',pixels,{'X-FH6-Serial':String(serial)});assert.equal(frames.at(-1)[3],255);
+ await request('/frame','POST',pixels,{'X-FH6-Serial':String(serial)});assert.deepEqual(frames.at(-1),pixels);
  bridge.command({type:'pause'});assert.equal(frames.at(-1)[3],0);
  await request('/state','POST',{videoId:id,playing:true,applied:serial});
  await request('/frame','POST',pixels,{'X-FH6-Serial':String(serial)});assert.equal(frames.at(-1)[3],0);

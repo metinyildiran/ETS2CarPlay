@@ -36,6 +36,10 @@ Kurulum testleri Windows PowerShell ile ayrı deneme klasörlerinde çalışır;
 
 Tam test komutu `node --test test/*.test.js` şeklindedir. Gösterge testleri çıkarılmış oyun kaynaklarını ve üretilmiş ekran dosyalarını gerektirir. DirectX ve tarayıcı aktarım deneyleri `native/dx11_probe.cpp` ile `scripts/run-browser-probe.cjs` içindedir. Bunlar gerçek oyun geçişlerinin yerine geçmez.
 
+`scripts/probe-capture-constraints.cjs`, ayrı ve görünmez Chromium sekmelerinde gerçek yakalama çözünürlüğünü değiştirerek akışın devamını doğrular. Electron ile çalıştırılır; `ELECTRON_RUN_AS_NODE` ortam değişkeni kaldırılmalıdır. `scripts/bench-transport.cjs`, HEAD ile çalışma kopyasının HTTP/pipe yolunu benzersiz bir test pipe'ında karşılaştırır. Oyuna bağlanmaz. Sonuçlar `build/constraints-probe/` ve `build/transport-bench/` altındadır. Uyarlanabilir çözünürlük, yavaş disk ve parçalı pipe yanıtı testleri sırasıyla `test/capture-policy.test.js`, `test/browser-diagnostics.test.js` ve `test/transport.test.js` içindedir.
+
+Performans hedefleri, ölçüm sınırları ve uygulanan değişiklikler: [PERFORMANCE.md](docs/PERFORMANCE.md).
+
 ## Kaynaklar ve lisanslar
 
 `browser-extension/` sekme yakalamayı, `desktop/` yerel yardımcıyı, `native/` oyun eklentisini, `scripts/` derleme/kurulumu ve `test/` kontrolleri içerir.

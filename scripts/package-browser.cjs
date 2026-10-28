@@ -5,12 +5,12 @@ if(fs.existsSync(out))throw new Error('Browser package already exists; use a new
 fs.cpSync(base,out,{recursive:true});
 fs.copyFileSync(path.join(root,'dist/standalone/FH6Standalone.dll'),path.join(out,'FH6Standalone.dll'));
 const app=path.join(out,'Player/resources/app'),extension=path.join(out,'Extension');
-for(const file of ['browser-host.cjs','browser-bridge.cjs','browser-diagnostics.cjs'])fs.copyFileSync(path.join(root,'desktop',file),path.join(app,file));
+for(const file of ['browser-host.cjs','browser-bridge.cjs','browser-diagnostics.cjs','transport.cjs'])fs.copyFileSync(path.join(root,'desktop',file),path.join(app,file));
 fs.writeFileSync(path.join(app,'main.cjs'),"require('./browser-host.cjs');\n");
-const pkg=JSON.parse(fs.readFileSync(path.join(app,'package.json')));pkg.version='0.7.0';pkg.fh6Mode='browser';pkg.fh6NativeRevision='0.7.0';fs.writeFileSync(path.join(app,'package.json'),JSON.stringify(pkg,null,2));
+const pkg=JSON.parse(fs.readFileSync(path.join(app,'package.json')));pkg.version='0.8.0';pkg.fh6Mode='browser';pkg.fh6NativeRevision='0.8.0';fs.writeFileSync(path.join(app,'package.json'),JSON.stringify(pkg,null,2));
 const lock=JSON.parse(fs.readFileSync(path.join(app,'package-lock.json')));lock.version=pkg.version;lock.packages[''].version=pkg.version;fs.writeFileSync(path.join(app,'package-lock.json'),JSON.stringify(lock,null,2));
 fs.mkdirSync(extension,{recursive:true});
-for(const file of ['manifest.json','page-player.js','service-worker.js','popup.html','popup.js','popup.css','offscreen.html','offscreen.js','frames.js'])fs.copyFileSync(path.join(root,'browser-extension',file),path.join(extension,file));
+for(const file of ['manifest.json','page-player.js','service-worker.js','popup.html','popup.js','popup.css','offscreen.html','offscreen.js','frames.js','capture-policy.js'])fs.copyFileSync(path.join(root,'browser-extension',file),path.join(extension,file));
 const config=JSON.stringify({port:32127,token:randomBytes(32).toString('hex')});
 fs.writeFileSync(path.join(app,'browser-config.json'),config);fs.writeFileSync(path.join(extension,'config.json'),config);
 fs.copyFileSync(path.join(root,'BROWSER.md'),path.join(out,'README.md'));

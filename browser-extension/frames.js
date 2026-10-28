@@ -1,9 +1,9 @@
-let playing=false,applied=0,crop=null,epoch=0,discardPending=()=>{};
+let playing=false,applied=0,crop=null,epoch=0,discardPending=()=>{},resetTiming=()=>{};
 onmessage=event=>{
   const msg=event.data;
   if(msg.type==='state'){
     const next=msg.playing===true;
-    if(next!==playing||msg.applied!==applied||JSON.stringify(msg.crop)!==JSON.stringify(crop)){epoch++;discardPending();}
+    if(next!==playing||msg.applied!==applied||JSON.stringify(msg.crop)!==JSON.stringify(crop)){epoch++;discardPending();resetTiming();}
     playing=next;applied=msg.applied;crop=msg.crop;
   }
   if(msg.type==='start')void pump(msg).catch(error=>postMessage({error:error.message}));
@@ -23,7 +23,21 @@ async function pump({readable,base,token,session}){
   // Two buffers allow GPU readback of the next frame during the current upload.
   // The bounded queue contains at most one prepared frame and one latest input.
   const free=[new Uint8Array(1024*512*4),new Uint8Array(1024*512*4)];
-  const stats={received:0,prepared:0,sent:0,copyMs:0,sendMs:0,width:0,height:0};let reported=Date.now();
+  const stats={received:0,prepared:0,sent:0,copyMs:0,sendMs:0,width:0,height:0,dropped:0};let reported=Date.now();
+  const timings={copy:[],send:[],captureGap:[],sendGap:[],queue:[]};let lastCapture=0,lastSend=0;
+  const clock=()=>performance.now();
+  const sample=(name,value)=>{const list=timings[name];if(list.length<256)list.push(value);};
+  resetTiming=()=>{lastCapture=lastSend=0;for(const list of Object.values(timings))list.length=0;};
+  function timingReport(){
+    const result={};
+    for(const [name,list] of Object.entries(timings)){
+      if(list.length){list.sort((a,b)=>a-b);result[name+'P95Ms']=Math.round(list[Math.ceil(list.length*.95)-1]*10)/10;
+        result[name+'P99Ms']=Math.round(list[Math.ceil(list.length*.99)-1]*10)/10;
+        if(name.endsWith('Gap'))result[name+'MaxMs']=Math.round(list.at(-1)*10)/10;}
+      list.length=0;
+    }
+    return result;
+  }
   let pending=null,ready=null,preparing=null,uploading=null,failed=false,nativeCopy=true;
   discardPending=()=>{
     pending?.frame.close();pending=null;
@@ -37,10 +51,11 @@ async function pump({readable,base,token,session}){
     const item=ready;ready=null;
     if(!playing||item.epoch!==epoch){free.push(item.bytes);startPrepare();return;}
     uploading=(async()=>{
-      const start=Date.now();
+      const start=clock();sample('queue',start-item.arrived);
       const response=await fetch(base+'/frame',{method:'POST',headers:{'Content-Type':'application/octet-stream','X-FH6-Token':token,'X-FH6-Session':session,'X-FH6-Serial':String(item.serial)},body:item.bytes,signal:AbortSignal.timeout(2500)});
       if(!response.ok)throw new Error('ETS2 bağlantısı kesildi.');
-      stats.sent++;stats.sendMs+=Date.now()-start;
+      const end=clock(),duration=end-start;stats.sent++;stats.sendMs+=duration;sample('send',duration);
+      if(item.epoch===epoch&&playing){if(lastSend)sample('sendGap',end-lastSend);lastSend=end;}
     })().catch(fail).finally(()=>{free.push(item.bytes);uploading=null;startUpload();startPrepare();});
   }
   function startPrepare(){
@@ -49,7 +64,7 @@ async function pump({readable,base,token,session}){
     preparing=(async()=>{
       const {frame,frameCrop,frameEpoch,frameSerial}=item;
       try{
-        const start=Date.now();
+        const start=clock();
         const [sx,sy,sw,sh]=sourceRect(frame,frameCrop);
         const scale=Math.min(1024/sw,512/sh),w=sw*scale,h=sh*scale;
         ctx.fillStyle='#000';ctx.fillRect(0,0,1024,512);ctx.drawImage(frame,sx,sy,sw,sh,(1024-w)/2,(512-h)/2,w,h);
@@ -64,8 +79,8 @@ async function pump({readable,base,token,session}){
           for(let i=0;i<rgba.length;i+=4){bytes[i]=rgba[i+2];bytes[i+1]=rgba[i+1];bytes[i+2]=rgba[i];bytes[i+3]=255;}
         }
         if(failed||!playing||frameEpoch!==epoch){free.push(bytes);return;}
-        stats.prepared++;stats.copyMs+=Date.now()-start;
-        ready={bytes,epoch:frameEpoch,serial:frameSerial};startUpload();
+        const duration=clock()-start;stats.prepared++;stats.copyMs+=duration;sample('copy',duration);
+        ready={bytes,epoch:frameEpoch,serial:frameSerial,arrived:item.arrived};startUpload();
       }catch(error){free.push(bytes);throw error;}
       finally{frame.close();}
     })().catch(fail).finally(()=>{preparing=null;startPrepare();});
@@ -74,9 +89,10 @@ async function pump({readable,base,token,session}){
     while(!failed){
       const {value:frame,done}=await reader.read();if(done)break;
       stats.received++;stats.width=frame.displayWidth;stats.height=frame.displayHeight;
-      if(Date.now()-reported>=2000){reported=Date.now();postMessage({metrics:{...stats,at:reported}});}
+      if(Date.now()-reported>=2000){reported=Date.now();postMessage({metrics:{...stats,...timingReport(),at:reported}});}
       if(!playing||!validCrop(crop)){frame.close();continue;}
-      pending?.frame.close();pending={frame,frameCrop:{...crop},frameEpoch:epoch,frameSerial:applied};
+      const arrived=clock();if(lastCapture)sample('captureGap',arrived-lastCapture);lastCapture=arrived;
+      if(pending){pending.frame.close();stats.dropped++;}pending={frame,frameCrop:{...crop},frameEpoch:epoch,frameSerial:applied,arrived};
       startPrepare();
     }
     while(preparing||uploading)await Promise.all([preparing,uploading]);

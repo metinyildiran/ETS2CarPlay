@@ -11,7 +11,7 @@
 #pragma comment(lib,"user32.lib")
 using Microsoft::WRL::ComPtr;
 static bool check(HRESULT hr,const char *where) { if (FAILED(hr)) { std::printf("%s failed %08lx\n",where,hr); return false; } return true; }
-static int reloadProbe(ID3D11Device* device,ID3D11DeviceContext* ctx,IDXGISwapChain* swap) {
+static int reloadProbe(ID3D11Device* device,ID3D11DeviceContext* ctx,IDXGISwapChain* swap,bool rgba=false,bool dynamic=false) {
   HANDLE pipe=INVALID_HANDLE_VALUE;
   for(int i=0;i<300&&pipe==INVALID_HANDLE_VALUE;++i){pipe=CreateFileW(L"\\\\.\\pipe\\FH6CarPlay-test",GENERIC_READ|GENERIC_WRITE,0,nullptr,OPEN_EXISTING,0,nullptr);if(pipe==INVALID_HANDLE_VALUE)Sleep(10);}
   if(pipe==INVALID_HANDLE_VALUE)return 2;
@@ -21,10 +21,13 @@ static int reloadProbe(ID3D11Device* device,ID3D11DeviceContext* ctx,IDXGISwapCh
   for(size_t i=0;i<sizeof(fh6::marker);++i){marker[i*4]=marker[i*4+1]=marker[i*4+2]=fh6::marker[i];marker[i*4+3]=255;}
   auto send=[&](){DWORD n=0;uint32_t ack[3];return WriteFile(pipe,frame.data(),DWORD(frame.size()),&n,nullptr)&&n==frame.size()&&ReadFile(pipe,ack,sizeof(ack),&n,nullptr)&&n==sizeof(ack)&&ack[1]<=32;};
   D3D11_TEXTURE2D_DESC td{};td.Width=fh6::width;td.Height=fh6::height;td.MipLevels=td.ArraySize=td.SampleDesc.Count=1;td.Format=DXGI_FORMAT_B8G8R8A8_UNORM;td.Usage=D3D11_USAGE_DEFAULT;td.BindFlags=D3D11_BIND_SHADER_RESOURCE;
+  if(rgba)td.Format=DXGI_FORMAT_R8G8B8A8_UNORM;
+  if(dynamic){td.Usage=D3D11_USAGE_DYNAMIC;td.CPUAccessFlags=D3D11_CPU_ACCESS_WRITE;}
   auto rd=td;rd.Usage=D3D11_USAGE_STAGING;rd.BindFlags=0;rd.CPUAccessFlags=D3D11_CPU_ACCESS_READ;
   ComPtr<ID3D11Texture2D> readback,previous;
   if(FAILED(device->CreateTexture2D(&rd,nullptr,&readback)))return 2;
-  auto verify=[&](ID3D11Texture2D* texture,bool playing){ctx->CopyResource(readback.Get(),texture);D3D11_MAPPED_SUBRESOURCE m{};if(FAILED(ctx->Map(readback.Get(),0,D3D11_MAP_READ,0,&m)))return false;auto p=static_cast<uint8_t*>(m.pData);bool ok=playing?p[0]==31&&p[1]==67&&p[2]==193&&p[3]==255:p[0]==0&&p[1]==0&&p[2]==0&&p[3]==0;ctx->Unmap(readback.Get(),0);return ok;};
+  auto verify=[&](ID3D11Texture2D* texture,bool playing){ctx->CopyResource(readback.Get(),texture);D3D11_MAPPED_SUBRESOURCE m{};if(FAILED(ctx->Map(readback.Get(),0,D3D11_MAP_READ,0,&m)))return false;auto p=static_cast<uint8_t*>(m.pData);bool ok=playing?p[0]==(rgba?193:31)&&p[1]==67&&p[2]==(rgba?31:193)&&p[3]==255:p[0]==0&&p[1]==0&&p[2]==0&&p[3]==0;ctx->Unmap(readback.Get(),0);return ok;};
+  auto restoreMarker=[&](ID3D11Texture2D* texture){if(!dynamic){ctx->UpdateSubresource(texture,0,nullptr,marker.data(),fh6::stride,0);return true;}D3D11_MAPPED_SUBRESOURCE m{};if(FAILED(ctx->Map(texture,0,D3D11_MAP_WRITE_DISCARD,0,&m)))return false;for(UINT y=0;y<fh6::height;++y)std::memcpy(static_cast<uint8_t*>(m.pData)+size_t(y)*m.RowPitch,marker.data()+size_t(y)*fh6::stride,fh6::stride);ctx->Unmap(texture,0);return true;};
   D3D11_SUBRESOURCE_DATA data{marker.data(),fh6::stride,UINT(marker.size())};
   int failures=0;
   for(int i=0;i<64;++i){
@@ -35,22 +38,23 @@ static int reloadProbe(ID3D11Device* device,ID3D11DeviceContext* ctx,IDXGISwapCh
     if(previous&&!verify(previous.Get(),true))++failures;
     // Reload into the SAME texture without receiving a new frame. A cached
     // serial must not leave the DDS marker or an old truck image on screen.
-    ctx->UpdateSubresource(current.Get(),0,nullptr,marker.data(),fh6::stride,0);
+    if(!restoreMarker(current.Get()))return 2;
     swap->Present(0,0);if(!verify(current.Get(),true))++failures;
     if(i%8==0){ctx->ClearState();if(FAILED(swap->ResizeBuffers(0,64+UINT(i),64,DXGI_FORMAT_UNKNOWN,0)))return 2;swap->Present(0,0);if(!verify(current.Get(),true))++failures;}
     previous=current;
   }
   // Disconnect while a cab is loaded, then open another cab after the timeout.
   CloseHandle(pipe);Sleep(2200);swap->Present(0,0);if(!verify(previous.Get(),false))++failures;
-  ctx->UpdateSubresource(previous.Get(),0,nullptr,marker.data(),fh6::stride,0);swap->Present(0,0);if(!verify(previous.Get(),false))++failures;
+  if(!restoreMarker(previous.Get()))return 2;swap->Present(0,0);if(!verify(previous.Get(),false))++failures;
   ComPtr<ID3D11Texture2D> idle;if(FAILED(device->CreateTexture2D(&td,&data,&idle)))return 2;swap->Present(0,0);if(!verify(idle.Get(),false))++failures;
-  std::printf("reload cycles=64 overlapping-cabs=64 resize=8 navigation-return=1 failures=%d\n",failures);
+  std::printf("reload cycles=64 overlapping-cabs=64 resize=8 navigation-return=1 rgba=%d dynamic=%d failures=%d\n",rgba,dynamic,failures);
   return failures?1:0;
 }
 int main(int argc,char **argv) {
-  bool stream=false,single=false,noUi=false,reload=false;
+  bool stream=false,single=false,noUi=false,reload=false,rgba=false,dynamic=false;
   for(int i=1;i<argc;++i){if(!strcmp(argv[i],"--stream"))stream=true;if(!strcmp(argv[i],"--single"))single=true;if(!strcmp(argv[i],"--no-ui"))noUi=true;}
   for(int i=1;i<argc;++i)if(!strcmp(argv[i],"--reload"))reload=true;
+  for(int i=1;i<argc;++i){if(!strcmp(argv[i],"--rgba"))rgba=true;if(!strcmp(argv[i],"--dynamic"))dynamic=true;}
 
 #ifndef FH6_STANDALONE
   (void)argc;
@@ -98,7 +102,7 @@ int main(int argc,char **argv) {
   for (size_t i=0;i<sizeof(fh6::marker);++i) pixels[i*4]=pixels[i*4+1]=pixels[i*4+2]=fh6::marker[i];
   D3D11_SUBRESOURCE_DATA data{pixels.data(),fh6::stride,UINT(fh6::pixels_size)};
   int failures=0;
-  if(reload)failures+=reloadProbe(device.Get(),ctx.Get(),swap.Get());
+  if(reload)failures+=reloadProbe(device.Get(),ctx.Get(),swap.Get(),rgba,dynamic);
   for (int route=0;route<5;++route) {
     pixels[0]=fh6::marker[0];
     ComPtr<ID3D11Texture2D> texture,upload,readback;

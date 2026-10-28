@@ -10,7 +10,7 @@ function harness({fallback=false,holdCopy=false}={}){
  const stream=new ReadableStream({start(c){controller=c;}});
  class Canvas {constructor(){this.id=0;}getContext(){return {fillRect(){},drawImage:frame=>{this.id=frame.id;},getImageData:()=>({data:Uint8Array.of(193,67,this.id,255)})};}}
  class Frame {constructor(canvas){this.id=canvas.id;}async copyTo(bytes,options){copies.push(this.id);assert.equal(options.format,'BGRA');if(fallback)throw Object.assign(Error('unsupported'),{name:'NotSupportedError'});if(holdCopy)await new Promise(resolve=>{releaseCopy=resolve;});bytes.set([this.id,67,193,255]);}close(){}}
- const context=vm.createContext({OffscreenCanvas:Canvas,VideoFrame:Frame,ReadableStream,Uint8Array,AbortSignal,postMessage:msg=>messages.push(msg),fetch:(_url,opts)=>new Promise(resolve=>requests.push({id:opts.body[0],body:opts.body,red:opts.body[2],serial:opts.headers['X-FH6-Serial'],release:(ok=true)=>resolve({ok})}))});
+ const context=vm.createContext({OffscreenCanvas:Canvas,VideoFrame:Frame,ReadableStream,Uint8Array,AbortSignal,performance,postMessage:msg=>messages.push(msg),fetch:(_url,opts)=>new Promise(resolve=>requests.push({id:opts.body[0],body:opts.body,red:opts.body[2],serial:opts.headers['X-FH6-Serial'],release:(ok=true)=>resolve({ok})}))});
  vm.runInContext(source,context);
  const state=(playing,applied=1)=>context.onmessage({data:{type:'state',playing,applied,crop:{x:0,y:0,w:1,h:1}}});
  state(true);context.onmessage({data:{type:'start',readable:stream,base:'http://127.0.0.1',token:'test',session:'test'}});

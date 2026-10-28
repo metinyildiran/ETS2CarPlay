@@ -137,15 +137,21 @@ void paint(IDXGISwapChain *swap) {
   ComPtr<ID3D11DeviceContext> ctx;dev->GetImmediateContext(&ctx);
   std::lock_guard lock(resources);
   struct InternalGuard{InternalGuard(){internal=true;}~InternalGuard(){internal=false;}} guard;
-  static std::vector<uint8_t> pixels(fh6::pixels_size);
+  static const std::vector<uint8_t> clearPixels(fh6::pixels_size,0);
+  static std::vector<uint8_t> rgbaPixels(fh6::pixels_size);
+  bool converted=false;
   for(auto &k:known){
     if(k.serial==current || !(k.desc.BindFlags&D3D11_BIND_SHADER_RESOURCE) || (k.desc.Usage!=D3D11_USAGE_DEFAULT && k.desc.Usage!=D3D11_USAGE_DYNAMIC))continue;
     ComPtr<ID3D11Device> owner;k.texture->GetDevice(&owner);if(owner.Get()!=dev.Get())continue;
-    if(frame)std::memcpy(pixels.data(),frame->data()+24,pixels.size());else std::fill(pixels.begin(),pixels.end(),uint8_t(0));
-    if(k.desc.Format==DXGI_FORMAT_R8G8B8A8_UNORM || k.desc.Format==DXGI_FORMAT_R8G8B8A8_UNORM_SRGB || k.desc.Format==DXGI_FORMAT_R8G8B8A8_TYPELESS)
-      for(size_t i=0;i<pixels.size();i+=4)std::swap(pixels[i],pixels[i+2]);
-    if(k.desc.Usage==D3D11_USAGE_DYNAMIC){D3D11_MAPPED_SUBRESOURCE m;if(FAILED(ctx->Map(k.texture.Get(),0,D3D11_MAP_WRITE_DISCARD,0,&m)))continue;for(UINT y=0;y<fh6::height;++y)std::memcpy(static_cast<uint8_t*>(m.pData)+size_t(y)*m.RowPitch,pixels.data()+size_t(y)*fh6::stride,fh6::stride);ctx->Unmap(k.texture.Get(),0);}
-    else ctx->UpdateSubresource(k.texture.Get(),0,nullptr,pixels.data(),fh6::stride,0);
+    // frame holds shared ownership while the receiver publishes the next frame.
+    // BGRA can be uploaded directly; convert once if this batch has RGBA targets.
+    const uint8_t *pixels=frame?frame->data()+24:clearPixels.data();
+    if(frame&&(k.desc.Format==DXGI_FORMAT_R8G8B8A8_UNORM || k.desc.Format==DXGI_FORMAT_R8G8B8A8_UNORM_SRGB || k.desc.Format==DXGI_FORMAT_R8G8B8A8_TYPELESS)){
+      if(!converted){for(size_t i=0;i<rgbaPixels.size();i+=4){rgbaPixels[i]=pixels[i+2];rgbaPixels[i+1]=pixels[i+1];rgbaPixels[i+2]=pixels[i];rgbaPixels[i+3]=pixels[i+3];}converted=true;}
+      pixels=rgbaPixels.data();
+    }
+    if(k.desc.Usage==D3D11_USAGE_DYNAMIC){D3D11_MAPPED_SUBRESOURCE m;if(FAILED(ctx->Map(k.texture.Get(),0,D3D11_MAP_WRITE_DISCARD,0,&m)))continue;for(UINT y=0;y<fh6::height;++y)std::memcpy(static_cast<uint8_t*>(m.pData)+size_t(y)*m.RowPitch,pixels+size_t(y)*fh6::stride,fh6::stride);ctx->Unmap(k.texture.Get(),0);}
+    else ctx->UpdateSubresource(k.texture.Get(),0,nullptr,pixels,fh6::stride,0);
     k.serial=current;++uploaded;
   }
 }

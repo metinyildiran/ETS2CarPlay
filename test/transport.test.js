@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import net from 'node:net';
+import {randomUUID} from 'node:crypto';
+import {createRequire} from 'node:module';
+const {FrameSender}=createRequire(import.meta.url)('../desktop/transport.cjs');
+const until=async f=>{for(let i=0;i<200;i++){if(f())return;await new Promise(r=>setTimeout(r,5));}throw Error('pipe timed out');};
+test('Split header/body writes preserve frames; slow receiver keeps only latest pending; fragmented ACK works',{skip:process.platform!=='win32'},async t=>{
+  const name='CarPlay-test-'+randomUUID(),packets=[],acks=[];let connection,buffer=Buffer.alloc(0);
+  const server=net.createServer(socket=>{connection=socket;socket.on('data',b=>{buffer=Buffer.concat([buffer,b]);while(buffer.length>=24+2097152){packets.push(buffer.subarray(0,24+2097152));buffer=buffer.subarray(24+2097152);}});});
+  await new Promise(r=>server.listen('\\\\.\\pipe\\'+name,r));const sender=new FrameSender(a=>acks.push(a),name);
+  t.after(()=>{sender.close();connection?.destroy();server.close();});
+  sender.push(Buffer.alloc(2097152,17));await until(()=>packets.length===1);
+  sender.push(Buffer.alloc(2097152,23));sender.push(Buffer.alloc(2097152,31));
+  assert.equal(packets[0].toString('ascii',0,4),'FH6F');assert.equal(packets[0].readUInt32LE(20),1);assert.ok(packets[0].subarray(24).every(v=>v===17));
+  const ack=Buffer.alloc(12);ack.writeUInt32LE(1);ack.writeUInt32LE(1,4);
+  connection.write(ack.subarray(0,5));await new Promise(r=>setTimeout(r,20));assert.equal(packets.length,1);
+  connection.write(ack.subarray(5));await until(()=>packets.length===2);
+  assert.equal(packets[1].readUInt32LE(20),2);assert.ok(packets[1].subarray(24).every(v=>v===31));
+  assert.ok(acks.some(a=>a.pipeMs>=0));
+});

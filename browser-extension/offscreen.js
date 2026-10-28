@@ -7,7 +7,7 @@ async function api(ctx,route,{method='GET',body}={}){
 const status=message=>chrome.runtime.sendMessage({to:'service',type:'status',message}).catch(()=>{});
 async function finish(message='Aktarım durdu. Navigasyon geri gelir.'){
   const ctx=current;if(!ctx)return;current=null;ctx.stopped=true;
-  clearTimeout(ctx.poll);ctx.worker?.terminate();ctx.stream?.getTracks().forEach(t=>t.stop());
+  clearTimeout(ctx.poll);ctx.policy?.close();ctx.worker?.terminate();ctx.stream?.getTracks().forEach(t=>t.stop());
   await Promise.allSettled([ctx.output?.close(),ctx.session?api(ctx,'/disconnect',{method:'POST'}):Promise.resolve(),status(message)]);
 }
 async function begin(msg){
@@ -24,6 +24,10 @@ async function begin(msg){
     const connection=await api(ctx,'/connect',{method:'POST',body:{}});ctx.session=connection.session;
     const track=ctx.stream.getVideoTracks()[0];track.onended=()=>{if(current===ctx)void finish('Sekme paylaşımı sona erdi.');};
     track.contentHint='motion';
+    // Chromium retains the initial source envelope across applyConstraints.
+    // Keep 1080p available, but downscale to 720p before starting the worker.
+    ctx.policy=createCapturePolicy(track,{initialLevel:2});await ctx.policy.initialize();
+    if(current!==ctx)return {ok:false,message:'Aktarım durduruldu.'};
     if(!window.MediaStreamTrackProcessor)throw new Error('Bu tarayıcı sürümü aktarımı desteklemiyor. Chrome veya Edge’i güncelle.');
     const readable=new MediaStreamTrackProcessor({track,maxBufferSize:1}).readable;
     ctx.worker=new Worker('frames.js');ctx.worker.postMessage({type:'start',readable,base:ctx.base,token:ctx.token,session:ctx.session},[readable]);
@@ -41,7 +45,8 @@ async function begin(msg){
         }
         const result=await chrome.runtime.sendMessage({to:'service',type:'snapshot',tabId:ctx.tabId});
         if(!result?.state)throw new Error(result?.message||'Video sekmesine erişilemiyor.');
-        const state={...result.state,applied:ctx.applied,metrics:ctx.metrics};
+        ctx.policy.observe(ctx.metrics,result.state);
+        const state={...result.state,applied:ctx.applied,metrics:{...ctx.metrics,...ctx.policy.snapshot()}};
         await api(ctx,'/state',{method:'POST',body:state});
         if(current!==ctx)return;
         ctx.worker.postMessage({type:'state',playing:state.playing,applied:ctx.applied,crop:state.crop});

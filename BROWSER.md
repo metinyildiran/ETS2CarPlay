@@ -14,7 +14,7 @@ Tam ekran gerekmez. Otomatik seçim videonun kendi sınırlarını izler; sayfan
 
 ## Kontroller ve navigasyon
 
-Ctrl+Alt+Y paneli kaldırılmıştır; oyun klavye ve fare girişleri yakalanmaz. Oynatma, kalite, ses, dil ve altyazı kontrollerini doğrudan tarayıcıdaki oynatıcıdan kullanın. Mevcut oynatma konumu korunur; aktarım videoyu yeniden başlatmaz.
+Oynatma, kalite, ses, dil ve altyazı kontrollerini doğrudan tarayıcıdaki oynatıcıdan kullanın. Mevcut oynatma konumu korunur; aktarım videoyu yeniden başlatmaz.
 
 Otomatik video seçiminde duraklatma veya videonun bitmesi navigasyonu geri getirir. Aynı oynatıcı alanında sonraki video başladığında aktarım otomatik devam eder; video öğesi yenilense de bağlantı korunur. Otomatik seçim modu aynı sitedeki sayfa geçişlerinde videoyu yeniden bulur. Geçişte video henüz hazır değilse navigasyon görünür. Duraklatılan video yerine yan taraftaki başka bir oynatıcıya geçilmez. Farklı bir siteye gidildiğinde yeniden **Kabine aktar** seçin. Listeden belirli bir video seçtiyseniz tam sayfa yenilemesinden sonra tekrar seçim yapın.
 
@@ -29,7 +29,7 @@ Sekmenin kapanması veya aktarımın durdurulması navigasyonu geri getirir. Bek
 - Başka alan adından yüklenen iframe videoları ve kapalı shadow DOM oynatıcıları otomatik bulunamayabilir; alan seçimi kullanılabilir. Bu işlem ek sitelere sürekli erişim izni istemez.
 - DRM ile korunan içerikler tarayıcı tarafından siyah gösterilebilir. Her site ve oynatıcı için uyumluluk garantisi yoktur.
 - Yerel video dosyaları için tarayıcının uzantı ayarlarındaki dosya URL'lerine erişim izni gerekebilir. Dahili tarayıcı sayfaları desteklenmez.
-- Kabin görüntüsü 1024×512'dir. 0.7.3 sekmeyi en fazla 1920×1080 yakalar ve 60 FPS ister; gerçek hız kaynak videoya, tarayıcıya ve sistem yüküne bağlıdır.
+- Kabin görüntüsü 1024×512'dir. Aktarım 720p yakalamayla başlar; yük artınca 540p'ye iner, yeterli işlem payı ve küçük bir video alanı varsa 1080p'ye çıkabilir. Tarayıcıdan 60 FPS istenir; gerçek hız kaynak videoya, tarayıcıya ve sistem yüküne bağlıdır. Yakalama çözünürlüğü değişirken tarayıcıdaki video kalite seçimi korunur.
 - Hesap, oturum ve çerezler tarayıcıda kalır. Görüntü internete tekrar yüklenmez.
 
 ## Güncelleme

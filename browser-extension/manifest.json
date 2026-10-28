@@ -1,7 +1,7 @@
 {
   "manifest_version":3,
   "name":"ETS2 Video Aktarımı",
-  "version":"0.7.3",
+  "version":"0.8.0",
   "minimum_chrome_version":"116",
   "description":"Seçtiğin tarayıcı videosunu veya sayfa alanını ETS2 kabin ekranlarına aktarır.",
   "permissions":["activeTab","scripting","tabCapture","offscreen","storage"],
