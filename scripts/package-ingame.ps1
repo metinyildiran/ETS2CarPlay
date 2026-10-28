@@ -20,4 +20,5 @@ Copy-Item -LiteralPath "$root\vendor\imgui\LICENSE.txt" -Destination "$out\ImGui
 Copy-Item -LiteralPath "$root\vendor\scs-sdk\sdk_license.txt" -Destination "$out\SCS-SDK-LICENSE.txt" -Force
 Copy-Item -LiteralPath "$root\INGAME.md" -Destination "$out\README.md" -Force
 Copy-Item -LiteralPath "$root\scripts\update-ingame.ps1" -Destination "$out\scripts" -Force
+Copy-Item -LiteralPath "$root\scripts\player-config.ps1" -Destination "$out\scripts" -Force
 Write-Output "In-game package: $out"

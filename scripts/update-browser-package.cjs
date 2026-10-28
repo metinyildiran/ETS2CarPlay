@@ -23,6 +23,7 @@ for(const name of ['browser-host.cjs','browser-bridge.cjs','browser-diagnostics.
 add('FH6Standalone.dll',fs.readFileSync(path.join(root,'dist/standalone/FH6Standalone.dll')));
 add('README.md',fs.readFileSync(path.join(root,'BROWSER.md')));
 add('scripts/update-ingame.ps1',fs.readFileSync(path.join(root,'scripts/update-ingame.ps1')));
+add('scripts/player-config.ps1',fs.readFileSync(path.join(root,'scripts/player-config.ps1')));
 const pkg=JSON.parse(fs.readFileSync(path.join(app,'package.json')));pkg.version='0.7.0';pkg.fh6Mode='browser';pkg.fh6NativeRevision='0.7.0';
 add('Player/resources/app/package.json',Buffer.from(JSON.stringify(pkg,null,2)));
 const lock=JSON.parse(fs.readFileSync(path.join(app,'package-lock.json')));lock.version=pkg.version;lock.packages[''].version=pkg.version;

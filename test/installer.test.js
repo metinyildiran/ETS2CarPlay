@@ -50,6 +50,51 @@ function fixtureArgs(f,script,extra=''){
  return ['-NoProfile','-ExecutionPolicy','Bypass','-Command',command];
 }
 
+function previousPlayer(f){
+ const old=path.join(f.dir,'old-package/Player'),app=path.join(old,'resources/app');
+ fs.mkdirSync(app,{recursive:true});fs.mkdirSync(path.dirname(f.ini),{recursive:true});
+ fs.writeFileSync(path.join(old,'electron.exe'),'old player fixture');
+ fs.writeFileSync(path.join(app,'package.json'),JSON.stringify({fh6Mode:'browser',fh6NativeRevision:'0.7.0'}));
+ fs.writeFileSync(path.join(app,'main.cjs'),"require('./browser-host.cjs');");
+ const original=Buffer.from('\uFEFF[Player]\r\nExecutable='+path.join(old,'electron.exe')+'\r\n','utf16le');
+ fs.writeFileSync(f.ini,original);return original;
+}
+
+test('Partial installation adopts a recognized untracked player INI with a byte-exact backup',{skip:process.platform!=='win32'},()=>{
+ const f=fixture(),original=previousPlayer(f);
+ fs.writeFileSync(f.dll,'test DLL bytes');fs.writeFileSync(f.mod,'new test mod');
+ const manifest=JSON.parse(fs.readFileSync(f.manifest));manifest.Actions=manifest.Actions.filter(a=>a.Target!==f.ini);
+ for(const a of manifest.Actions)a.After=hash(fs.readFileSync(a.Target));
+ fs.writeFileSync(f.manifest,JSON.stringify(manifest));
+ const result=update(f,true);assert.equal(result.status,0,result.output);
+ const installed=JSON.parse(fs.readFileSync(f.manifest,'utf8').replace(/^\uFEFF/,''));
+ const ini=installed.Actions.find(a=>a.Target===f.ini);
+ assert.equal(ini.Before,hash(original));assert.deepEqual(fs.readFileSync(ini.Backup),original);
+ assert.equal(ini.After,hash(fs.readFileSync(f.ini)));assert.match(fs.readFileSync(f.ini,'utf16le'),new RegExp(f.pkg.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+ assert.equal(update(f,true).status,0,'repair remains repeatable');
+});
+
+test('Fresh ZIP install can replace a recognized older installation and preserves its INI',{skip:process.platform!=='win32'},()=>{
+ const f=fixture(),original=previousPlayer(f);fs.unlinkSync(f.manifest);
+ fs.writeFileSync(path.join(f.game,'bin/win_x64/eurotrucks2.exe'),'test game');
+ const quote=s=>"'"+s.replaceAll("'","''")+"'";
+ const result=spawnSync('powershell.exe',fixtureArgs(f,'install-carplay.ps1',` -GamePath ${quote(f.game)} -DocumentsPath ${quote(path.join(f.dir,'documents'))}`),{encoding:'utf8',windowsHide:true,env});
+ assert.equal(result.status,0,result.stdout+result.stderr);
+ const installed=JSON.parse(fs.readFileSync(f.manifest,'utf8').replace(/^\uFEFF/,''));
+ assert.deepEqual(fs.readFileSync(installed.Actions.find(a=>a.Target===f.ini).Backup),original);
+});
+
+test('Unknown existing player INI is refused before a fresh installer changes game files',{skip:process.platform!=='win32'},()=>{
+ const f=fixture();fs.unlinkSync(f.manifest);fs.mkdirSync(path.dirname(f.ini),{recursive:true});
+ fs.writeFileSync(path.join(f.game,'bin/win_x64/eurotrucks2.exe'),'test game');
+ fs.writeFileSync(f.dll,'keep existing DLL');fs.writeFileSync(f.ini,'[Unrelated]\nSetting=value');
+ const quote=s=>"'"+s.replaceAll("'","''")+"'";
+ const result=spawnSync('powershell.exe',fixtureArgs(f,'install-carplay.ps1',` -GamePath ${quote(f.game)} -DocumentsPath ${quote(path.join(f.dir,'documents'))}`),{encoding:'utf8',windowsHide:true,env});
+ assert.equal(result.status,1);assert.match(result.stdout,/ayari taninamadi/);
+ assert.equal(fs.readFileSync(f.dll,'utf8'),'keep existing DLL');assert.equal(fs.readFileSync(f.mod,'utf8'),'old mod');
+ assert.equal(fs.existsSync(f.manifest),false);
+});
+
 test('Missing installed files require explicit repair; repair restores files and matching manifest hashes',{skip:process.platform!=='win32'},()=>{
  const f=fixture();
  const refused=update(f);

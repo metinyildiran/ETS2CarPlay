@@ -51,6 +51,9 @@ try{
    if([string]::IsNullOrWhiteSpace($DocumentsPath)){$DocumentsPath=$defaultDocuments}
   }
   $GamePath=$GamePath.Trim().Trim('"');$DocumentsPath=$DocumentsPath.Trim().Trim('"')
+  . (Join-Path $PSScriptRoot 'player-config.ps1')
+  # Validate before the base installer touches the DLL or dashboard mod.
+  $null=Get-CarPlayExistingPlayerConfig (Join-Path $GamePath 'bin\win_x64\plugins\FH6Player.ini')
   & (Join-Path $PSScriptRoot 'install-standalone.ps1') -GamePath $GamePath -DocumentsPath $DocumentsPath -PackagePath $PackagePath -ManifestPath $ManifestPath
  }
  & (Join-Path $PSScriptRoot 'update-ingame.ps1') -PackagePath $PackagePath -ManifestPath $ManifestPath -RepairMissing

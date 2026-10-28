@@ -15,4 +15,5 @@ const config=JSON.stringify({port:32127,token:randomBytes(32).toString('hex')});
 fs.writeFileSync(path.join(app,'browser-config.json'),config);fs.writeFileSync(path.join(extension,'config.json'),config);
 fs.copyFileSync(path.join(root,'BROWSER.md'),path.join(out,'README.md'));
 fs.copyFileSync(path.join(root,'scripts/update-ingame.ps1'),path.join(out,'scripts/update-ingame.ps1'));
+fs.copyFileSync(path.join(root,'scripts/player-config.ps1'),path.join(out,'scripts/player-config.ps1'));
 console.log('Browser package: '+out);

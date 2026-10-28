@@ -1,7 +1,7 @@
 // Assemble only public runtime files, never a recursive copy of a live app profile.
 const fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'..'),source=path.join(root,'dist/browser-0.7.0');
-const out=path.join(root,'dist/releases/ETS2CarPlay-0.7.3');
+const out=path.join(root,'dist/releases/ETS2CarPlay-0.7.4');
 if(fs.existsSync(out))throw Error('Release staging folder already exists. Preserve it and use a fresh destination.');
 const pkg=path.join(out,'dist/browser-0.7.0'),app=path.join(pkg,'Player/resources/app');
 const copy=(src,dst)=>{fs.mkdirSync(path.dirname(dst),{recursive:true});fs.copyFileSync(src,dst);};
@@ -13,7 +13,7 @@ for(const name of fs.readdirSync(path.join(source,'Player'))){
 for(const name of ['main.cjs','package.json'])copy(path.join(source,'Player/resources/app',name),path.join(app,name));
 for(const name of ['browser-host.cjs','browser-bridge.cjs','browser-diagnostics.cjs','transport.cjs'])copy(path.join(root,'desktop',name),path.join(app,name));
 for(const name of ['manifest.json','page-player.js','service-worker.js','popup.html','popup.js','popup.css','offscreen.html','offscreen.js','frames.js'])copy(path.join(root,'browser-extension',name),path.join(pkg,'Extension',name));
-for(const name of ['install-carplay.ps1','install-standalone.ps1','update-ingame.ps1'])copy(path.join(root,'scripts',name),path.join(out,'scripts',name));
+for(const name of ['install-carplay.ps1','install-standalone.ps1','update-ingame.ps1','player-config.ps1'])copy(path.join(root,'scripts',name),path.join(out,'scripts',name));
 copy(path.join(root,'Install.cmd'),path.join(out,'Install.cmd'));
 fs.writeFileSync(path.join(out,'README.txt'),`ETS2CarPlay - Windows x64 / DirectX 11 / ETS2 1.61
 

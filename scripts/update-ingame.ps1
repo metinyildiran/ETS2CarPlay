@@ -22,9 +22,18 @@ foreach($action in $manifest.Actions){
  if($current -ne $action.After -and !$missingRepair){throw "Kurulumdan sonra degisen dosyaya dokunulmadi: $($action.Target)"}
 }
 $installedConfig=Join-Path $bin 'plugins\FH6Player.ini'
-if(Test-Path -LiteralPath $installedConfig){
- $installedPlayer=(Get-Content -LiteralPath $installedConfig | Where-Object {$_ -like 'Executable=*'}).Substring(11)
- if(Get-Process -Name electron -ErrorAction SilentlyContinue | Where-Object {$_.Path -eq $installedPlayer}){throw 'FH6 oynaticisi henuz kapanmadi. Oyundan ciktiktan sonra biraz bekle.'}
+. (Join-Path $PSScriptRoot 'player-config.ps1')
+$configAction=$manifest.Actions | Where-Object {$_.Target -eq $installedConfig}
+$adopted=$null
+if(!$configAction){
+ $adopted=Get-CarPlayExistingPlayerConfig $installedConfig
+ if($adopted){$observed[$installedConfig]=$adopted.Hash}
+}elseif(Test-Path -LiteralPath $installedConfig){
+ $installedPlayer=@(Get-Content -LiteralPath $installedConfig | Where-Object {$_ -like 'Executable=*'})
+ if($installedPlayer.Count -eq 1){
+  $installedPlayer=$installedPlayer[0].Substring(11)
+  if(Get-Process -Name electron -ErrorAction SilentlyContinue | Where-Object {$_.Path -eq $installedPlayer}){throw 'FH6 oynaticisi henuz kapanmadi. Oyundan ciktiktan sonra biraz bekle.'}
+ }
 }
 $dllAction=$manifest.Actions | Where-Object {$_.Target -eq (Join-Path $bin 'plugins\FH6Standalone.dll')}
 $modAction=$manifest.Actions | Where-Object {$_.Target -like '*\mod\FH6YouTube.scs'}
@@ -42,8 +51,7 @@ $configSource=Join-Path $backup 'FH6Player.ini.new'
 [IO.File]::WriteAllText($configSource,"[Player]`r`nExecutable=$player`r`n",[Text.Encoding]::Unicode)
 $configAction=$manifest.Actions | Where-Object {$_.Target -eq $config}
 if(!$configAction){
- if(Test-Path -LiteralPath $config){throw 'Kayitsiz FH6Player.ini bulundu; uzerine yazilmadi.'}
- $configAction=[pscustomobject]@{Target=$config;Source=$configSource;Backup=$null;Before=$null;After=$null}
+ $configAction=[pscustomobject]@{Target=$config;Source=$configSource;Backup=$null;Before=$(if($adopted){$adopted.Hash}else{$null});After=$null}
  $manifest.Actions=@($manifest.Actions)+@($configAction)
 }
 $changes=@(
@@ -58,6 +66,7 @@ foreach($change in $changes){
   $change.Backup=Join-Path $backup ([IO.Path]::GetFileName($change.Action.Target))
   Copy-Item -LiteralPath $change.Action.Target -Destination $change.Backup
   if((Get-FileHash -LiteralPath $change.Backup).Hash -ne $current){throw 'Yedek dogrulanamadi.'}
+  if($adopted -and $change.Action.Target -eq $config){$change.Action.Backup=$change.Backup}
  }
 }
 $completed=@()
